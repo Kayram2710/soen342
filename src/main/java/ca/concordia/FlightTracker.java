@@ -1,6 +1,5 @@
 package ca.concordia;
 
-import ca.concordia.airport.Airport;
 import ca.concordia.database.Registry;
 import ca.concordia.flight.Flight;
 import ca.concordia.flight.NonPrivateFlight;

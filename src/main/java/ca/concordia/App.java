@@ -1,38 +1,12 @@
 package ca.concordia;
 
 import javafx.application.Application;
-import javafx.beans.Observable;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.scene.Group;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Date;
 
-import ca.concordia.airport.Aircraft;
-import ca.concordia.airport.Airline;
-import ca.concordia.airport.Airport;
-import ca.concordia.database.Registry;
-import ca.concordia.flight.Flight;
-import ca.concordia.flight.NonPrivateFlight;
-import ca.concordia.flight.PrivateFlight;
-import ca.concordia.location.City;
-import ca.concordia.location.Temperature;
-import ca.concordia.user.User;
 
 /**
  * JavaFX App
