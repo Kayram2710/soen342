@@ -8,6 +8,7 @@ import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airline;
 import ca.concordia.airport.Airport;
 import ca.concordia.database.Registry;
+import ca.concordia.flight.CommercialFlight;
 import ca.concordia.flight.Flight;
 import ca.concordia.flight.NonPrivateFlight;
 import ca.concordia.flight.PrivateFlight;
@@ -40,6 +41,10 @@ public class UIController {
     private FlightTracker flightTracker;
     @FXML
     public void initialize() {
+        /*
+         * Instead of creating array list ill create a registry and add hardcoded item directly into reg
+         * instead of creating it at the end
+         */
         // TODO: Remove Hardcoded Data
         ArrayList<Flight> flights = new ArrayList<>();
         Temperature temp1 = new Temperature(25, "Celcius");
@@ -58,7 +63,7 @@ public class UIController {
         Flight flight1 = new PrivateFlight("WG117", airport1, airport2, date1, date2, date1, date2, aircraft1,
                 airport1);
         date1.setTime(999999999);
-        Flight flight2 = new NonPrivateFlight("WG118", airport2, airport1, date2, date1, date2, date1, aircraft1,
+        Flight flight2 = new CommercialFlight("WG118", airport2, airport1, date2, date1, date2, date1, aircraft1,
                 airline1);
         flights.add(flight1);
         flights.add(flight2);

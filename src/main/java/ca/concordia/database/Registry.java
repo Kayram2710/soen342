@@ -14,14 +14,22 @@ import ca.concordia.flight.Flight;
 import ca.concordia.user.User;
 
 public class Registry {
+    
     private ArrayList<Flight> flights;
     private ArrayList<Airport> airports;
     private ArrayList<Aircraft> aircrafts;
     private ArrayList<Airline> airlines;
     private ArrayList<User> users;
-    public Registry(){
-        this.getRegistry();
+
+    public Registry(){}
+
+    //Todo
+    /*
+    public Registry(Path){
+        this.loadRegistry(Path);
     }
+    */
+
     public ArrayList<Flight> getFlights() {
         return flights;
     }
@@ -73,7 +81,7 @@ public class Registry {
         }
     }
 
-    public void getRegistry(){
+    public void loadRegistry(){
         //TODO
     }
 
