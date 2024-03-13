@@ -2,19 +2,16 @@ package ca.concordia.flight;
 
 import java.util.Date;
 
-import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airline;
 import ca.concordia.airport.Airport;
 
-public abstract class NonPrivateFlight extends Flight{
-
-    public NonPrivateFlight(String flightNumber, Airport source, Airport destination, Date scheduledDepart,
-            Date scheduledArriv, Date actualDepart, Date actualArriv, Aircraft plane, Airline operator) {
-        super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv, plane);
-        this.operator = operator;
-    }
+public class NonPrivateFlight extends Flight{
 
     private Airline operator;
+
+    public NonPrivateFlight(String flightNumber, Airport source, Airport destination, Date scheduledDepart, Date scheduledArriv, Date actualDepart, Date actualArriv) {
+        super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv);
+    }
 
     public Airline getOperator() {
         return this.operator;

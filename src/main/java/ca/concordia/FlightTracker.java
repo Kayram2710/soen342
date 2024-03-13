@@ -15,7 +15,6 @@ public class FlightTracker {
 
     public FlightTracker(User loggedUser) {
         this.loggedUser = loggedUser;
-        this.registry = new Registry();
     }
 
     public FlightTracker(User loggedUser, Registry registry) {
@@ -39,6 +38,12 @@ public class FlightTracker {
         this.registry = registry;
     }
 
+    //add flight method
+    public boolean registerFlight(Flight newFlight){
+        return this.registry.registerFlight(newFlight, loggedUser);
+    }
+
+    //get flights method
     public ObservableList<String[]> getFlights() {
         ObservableList<String[]> data = FXCollections.observableArrayList();
         if(this.loggedUser == null){

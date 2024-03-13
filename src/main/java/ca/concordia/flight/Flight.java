@@ -1,9 +1,6 @@
 package ca.concordia.flight;
 
 import java.util.Date;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
-
 import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airport;
 
@@ -17,8 +14,7 @@ public abstract class Flight {
     private Date actualArriv;
     private Aircraft plane;
 
-    public Flight(String flightNumber, Airport source, Airport destination, Date scheduledDepart, Date scheduledArriv,
-            Date actualDepart, Date actualArriv, Aircraft plane) {
+    public Flight(String flightNumber, Airport source, Airport destination, Date scheduledDepart, Date scheduledArriv, Date actualDepart, Date actualArriv) {
         this.flightNumber = flightNumber;
         this.source = source;
         this.destination = destination;
@@ -26,7 +22,6 @@ public abstract class Flight {
         this.scheduledArriv = scheduledArriv;
         this.actualDepart = actualDepart;
         this.actualArriv = actualArriv;
-        this.plane = plane;
     }
 
     public String getFlightNumber() {
@@ -101,7 +96,7 @@ public abstract class Flight {
                 getScheduledDepart() + "," +
                 getScheduledArriv() + "," +
                 getActualDepart() + "," +
-                getActualArriv() + "," +
-                getPlane().getAircraftID();
+                getActualArriv() + "," + 
+                ((getPlane() != null)? "N/A":getPlane().getAircraftID());
     }
 }

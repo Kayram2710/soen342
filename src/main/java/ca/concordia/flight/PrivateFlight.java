@@ -7,10 +7,9 @@ import ca.concordia.airport.Airport;
 
 public class PrivateFlight extends Flight{
 
-    public PrivateFlight(String flightNumber, Airport source, Airport destination, Date scheduledDepart,
-            Date scheduledArriv, Date actualDepart, Date actualArriv, Aircraft plane, Airport operator) {
-        super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv, plane);
-        this.operator = operator;
+    public PrivateFlight(String flightNumber, Airport source, Airport destination, Date scheduledDepart, Date scheduledArriv, Date actualDepart, Date actualArriv, Aircraft plane) {
+        super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv);
+        super.setPlane(plane);
     }
 
     private Airport operator;
