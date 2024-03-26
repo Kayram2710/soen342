@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 
+import java.util.List;
+
 
 /**
  * JavaFX App
@@ -33,7 +35,10 @@ public class App extends Application {
     }
    
     public static void main(String[] args) {
+
+        //DatabaseGateway db = new DatabaseGateway();
+        //List<Object> result = db.runQuery("SELECT * FROM City");
+
         launch();
     }
-
 }
