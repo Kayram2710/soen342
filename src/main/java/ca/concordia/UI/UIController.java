@@ -71,8 +71,6 @@ public class UIController {
     @FXML
     public void initialize() {
 
-        hardCodeReg();
-
     }
 
     private void buildRegisteredTable() {
@@ -188,73 +186,6 @@ public class UIController {
         flightTracker.setLoggedUser(new AirportAdmin("test", "test",airport1));
         this.buildRegisteredTable();
         title.setText("Airport User");
-    }
-    
-    
-    //Hardcoded Data
-    public void hardCodeReg(){
-
-        //create containers
-        ArrayList<Flight> flights = new ArrayList<>();
-        ArrayList<Airport> airports = new ArrayList<>();
-        ArrayList<Aircraft> aircrafts = new ArrayList<>();
-        ArrayList<Airline> airlines = new ArrayList<>();
-        ArrayList<User> users = new ArrayList<>();
-
-        //instantiate objects
-        Temperature temp1 = new Temperature(25, "Celcius");
-        Temperature temp2 = new Temperature(-5, "Celcius");
-
-        City antigua = new City("Antigua", "Guatemala", temp1);
-        City toronto = new City("Toronto", "Canada", temp2);
-
-        Airport airport2 = new Airport("Antigua", "ANU", antigua);
-        Airport airport1 = new Airport("Toronto", "YYZ", toronto);
-
-        Airline airline1 = new Airline("Sunwing");
-
-        Aircraft aircraft1 = new Aircraft(airline1, 0, airport2);
-        Aircraft aircraft2 = new Aircraft(airline1, 0, airport2);
-
-        //NOTE: WE NEED TO USE A DIFFERANT DATE PACKAGE
-        LocalDateTime date1 = LocalDateTime.of(2024, 3, 30, 12, 30);
-        LocalDateTime date2 = LocalDateTime.of(2024, 3, 30, 18, 30);
-        LocalDateTime date3 = LocalDateTime.of(2024, 4, 30, 12, 30);
-        LocalDateTime date4 = LocalDateTime.of(2024, 4, 30, 18, 30);
-        LocalDateTime date5 = LocalDateTime.of(2024, 1, 30, 12, 30);
-        LocalDateTime date6 = LocalDateTime.of(2024, 1, 30, 18, 30);
-
-        Flight flight1 = new PrivateFlight("WG117", airport1, airport2, date1, date2, date1, date2, aircraft1);
-        Flight flight2 = new CommercialFlight("WG120", airport2, airport1, date3, date4, date3, date4, airline1);
-        Flight flight3 = new CargoFlight("WG118", airport2, airport1, date5, date6, date5, date6, airline1);
-
-        User user = new User("Regular", "Test");
-        User user1 = new AirportAdmin("AirportAdmin", "Test", airport1);
-        User user2 = new AirlineAdmin("AirlineAdmin", "Test", airline1);
-
-        //fill containers
-        airports.add(airport1);
-        airports.add(airport2);
-
-        aircrafts.add(aircraft1);
-        aircrafts.add(aircraft2);
-
-        airlines.add(airline1);
-        
-        airline1.addAircraft(aircraft1);
-        airline1.addAircraft(aircraft2);
-
-        users.add(user1);
-        users.add(user2);
-        users.add(user);
-
-        //testing
-        flightTracker.setLoggedUser(user1);
-        System.out.println(flightTracker.registerFlight(flight1));
-
-        flightTracker.setLoggedUser(user2);
-        System.out.println(flightTracker.registerFlight(flight2));
-        System.out.println(flightTracker.registerFlight(flight3));
     }
     
 }

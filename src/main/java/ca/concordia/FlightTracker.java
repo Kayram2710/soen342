@@ -131,11 +131,9 @@ public class FlightTracker {
         //adds either a private or non private flight based on the user
         if(newFlight instanceof NonPrivateFlight){
             ((NonPrivateFlight)newFlight).setOperator(((AirlineAdmin)loggedUser).getAirline());
-            //command += ((AirlineAdmin)loggedUser).getAirline().getName()+"','"+loggedUser.getName()+"');";
         }
         else if(loggedUser instanceof AirportAdmin){
             ((PrivateFlight)newFlight).setOperator(((AirportAdmin)loggedUser).getAirport());
-            //command += ((AirportAdmin)loggedUser).getAirport().getLetterCode()+"','"+loggedUser.getName()+"');";
         }
 
         command = newFlight.toSql()+loggedUser.getName()+"');";
@@ -150,35 +148,37 @@ public class FlightTracker {
     public ObservableList<String[]> getFlights() {
         ObservableList<String[]> data = FXCollections.observableArrayList();
         
-        /*
-        String command;
+        String command = "SELECT flightNumber, sourceID, destinationID from Flight where flightDiscriminator <> 1";
+        int quotient = 12;
+        ArrayList<Object> result;
 
-
-        if(this.loggedUser == null){
-            command = "SELECT *  ";
+        if(loggedUser == null){
+            quotient = 3;
         } 
+        else if((loggedUser instanceof AirlineAdmin) || (loggedUser instanceof SysAdmin)){
+            command = "SELECT * from Flight where flightDiscriminator <> 1";
+        }
+        else if(loggedUser instanceof AirportAdmin){
+            String code = ((AirportAdmin)loggedUser).getAirport().getLetterCode();
+            command = "SELECT * from Flight where flightDiscriminator <> 1 union Select * from Flight where flightDiscriminator == 1 and (sourceID == '"+code+"' or destinationID=='"+code+"') ";
+        } else{
+            quotient = 3;
+        }
 
-        if(this.loggedUser == null){
-            for (Flight f : registry.getFlights()) {
-                if (f instanceof NonPrivateFlight) {
-                    data.add(new String[] { f.getFlightNumber(), f.getSource().getLetterCode(),
-                            f.getDestination().getLetterCode() });
-                }
+        result = Db.runQuery(command);
+        int res_size = result.size()/quotient;
+
+        for (int i = 0; i < res_size; i++) {
+            if(quotient == 3){
+                System.out.println("loop");
+                data.add(new String[] { result.get(0*(i+1)).toString(), result.get(1*(i+1)).toString(), result.get(2*(i+1)).toString()});
+            }else if(quotient == 12){
+                data.add(new String[] { result.get(0*(i+1)).toString(), result.get(1*(i+1)).toString(), result.get(2*(i+1)).toString(), result.get(8*(i+1)).toString(), result.get(9*(i+1)).toString(), result.get(10*(i+1)).toString(), result.get(11*(i+1)).toString(), result.get(3*(i+1)).toString(),
+                    result.get((result.get((7*(i+1))).toString().equals("1"))?(5*(i+1)):(4*(i+1))).toString()});
             }
-        }else{
-            if(loggedUser instanceof AirportAdmin){
-                for (Flight f : registry.getFlights()) {
-                    if (f instanceof PrivateFlight && ((PrivateFlight)f).getSource().getName().equals(((AirportAdmin)loggedUser).getAirport().getName())) {
-                        data.add(f.toString().split(","));
-                    }
-                }    
-            }
-            for (Flight f : registry.getFlights()) {
-                if (f instanceof NonPrivateFlight) {
-                    data.add(f.toString().split(","));
-                }
-            }    
-        } */
+            
+        }
+
         return data;
     }
 }
