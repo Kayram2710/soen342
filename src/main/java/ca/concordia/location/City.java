@@ -1,5 +1,7 @@
 package ca.concordia.location;
 
+import ca.concordia.FlightTracker;
+
 public class City {
     private String name;
     private String country;
@@ -9,6 +11,12 @@ public class City {
         this.name = name;
         this.country = country;
         this.temp = temp;
+        sendtoDB();
+    }
+
+    private void sendtoDB(){
+        String command = this.toSql();
+        FlightTracker.Tracker.accessDB().passStatement(command);
     }
 
     public String getName() {
@@ -36,7 +44,7 @@ public class City {
     }
 
     public String toSql(){
-        String command = "Insert into City (name, country, temperature, metric) values ('"+this.name+"', '"+this.country+"', "+this.temp.getTemperature()+",'"+this.temp.getMetric()+"');";
+        String command = "Insert or ignore into City (name, country, temperature, metric) values ('"+this.name+"', '"+this.country+"', "+this.temp.getTemperature()+",'"+this.temp.getMetric()+"');";
         return command;
     }
 

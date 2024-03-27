@@ -71,6 +71,25 @@ public class UIController {
     @FXML
     public void initialize() {
 
+        Airline air = new Airline("Sunwing");
+        Temperature temp = new Temperature(25,"Celcius");
+        Temperature temp2 = new Temperature(33,"Celcius");
+        City city = new City("Veraguas", "Panama", temp);
+        City city2 = new City("Panama City", "Panama", temp2);
+        Airport airp = new Airport("Veraguas Aiport", "VEA", city);
+        Airport airp2 = new Airport("Panama Aiport", "PTY", city2);
+
+        Aircraft cra1 = new Aircraft(air, 5, airp);
+        Aircraft cra2 = new Aircraft(air, 6, airp);
+        Aircraft cra3 = new Aircraft(air, 7, airp2);
+
+        LocalDateTime date1 = LocalDateTime.of(2024, 5, 8, 18, 10, 0);
+        LocalDateTime date2 = LocalDateTime.of(2024, 5, 8, 21, 25, 0);
+        Flight newf = new CommercialFlight("WW390", airp, airp2, date1, date2, date1, date2, air);
+
+        flightTracker.setLoggedUser(new AirlineAdmin("AirlineAdmin", "pass", air));
+        flightTracker.registerFlight(newf);
+
     }
 
     private void buildRegisteredTable() {

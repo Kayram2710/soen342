@@ -1,5 +1,7 @@
 package ca.concordia.airport;
 
+import ca.concordia.FlightTracker;
+
 public class Aircraft {
 
     private Airline operator;
@@ -12,6 +14,21 @@ public class Aircraft {
         this.aircraftID = aircraftID;
         this.location = location;
         this.reserved = false;
+        sendtoDB();
+    }
+
+    public Aircraft(Airline operator, int aircraftID, Airport location, boolean reserved) {
+        this.operator = operator;
+        this.aircraftID = aircraftID;
+        this.location = location;
+        this.reserved = reserved;
+        sendtoDB();
+    }
+
+    private void sendtoDB(){
+        this.operator.getFleet().add(this);
+        String command = this.toSql();
+        FlightTracker.Tracker.accessDB().passStatement(command);
     }
 
     public Airline getOperator() {
@@ -47,8 +64,8 @@ public class Aircraft {
     }
 
     public String toSql(){
-        String command = "Insert into Aircraft (aircraftID, airportID, reserved) values ("+aircraftID+",'"+this.location.getLetterCode()+"', "+getReserved()+");";
-        command = command + "Insert into Fleet (aircraftID, airlineName) values ("+aircraftID+",'"+this.operator.getName()+"');";
+        String command = "Insert or ignore into Aircraft (aircraftID, airportID, reserved) values ("+aircraftID+",'"+this.location.getLetterCode()+"', "+getReserved()+");";
+        command = command + "Insert or ignore into Fleet (aircraftID, airlineName) values ("+aircraftID+",'"+this.operator.getName()+"');";
         return command;
     }
 

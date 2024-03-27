@@ -79,7 +79,7 @@ public class FlightTracker {
                 Temperature temp = new Temperature(Double.parseDouble(result.get(5).toString()),result.get(6).toString());
                 City city = new City(result.get(3).toString(), result.get(4).toString(), temp);
                 newUser = new AirportAdmin(username, password, new Airport(result.get(1).toString(), result.get(0).toString(), city));
-                System.out.println(((AirportAdmin)newUser).getAirport().toString());
+                //System.out.println(((AirportAdmin)newUser).getAirport().toString());
                 break;
             case 4:
                 command = "SELECT * From Airline A WHERE A.name = '"+ result.get(4)+"'";
@@ -102,17 +102,6 @@ public class FlightTracker {
         String command;
         ArrayList<Object> result;
 
-        //if user an airline admin, call the reserve aircraft function
-        if(this.loggedUser instanceof AirlineAdmin){
-
-            Airline userAirline = ((AirlineAdmin)loggedUser).getAirline();
-
-            //if reservation failed then method fails
-            if(userAirline.reserveAircraft(newFlight)==null){
-                return false;
-            }
-        }
-
         //check for airport availabilities
         command = "SELECT destinationID, scheduledArriv FROM Flight where destinationID ='"+newFlight.getDestination().getLetterCode()+"' and scheduledArriv ='"+newFlight.getScheduledArriv().toString()+"';";
         result = Db.runQuery(command);
@@ -126,6 +115,17 @@ public class FlightTracker {
 
         if(result.size() > 0 ){
             return false;
+        }
+
+        //if user an airline admin, call the reserve aircraft function
+        if(this.loggedUser instanceof AirlineAdmin){
+
+            Airline userAirline = ((AirlineAdmin)loggedUser).getAirline();
+
+            //if reservation failed then method fails
+            if(userAirline.reserveAircraft(newFlight)==null){
+                return false;
+            }
         }
 
         //adds either a private or non private flight based on the user
@@ -170,13 +170,11 @@ public class FlightTracker {
 
         for (int i = 0; i < res_size; i++) {
             if(quotient == 3){
-                System.out.println("loop");
-                data.add(new String[] { result.get(0*(i+1)).toString(), result.get(1*(i+1)).toString(), result.get(2*(i+1)).toString()});
+                data.add(new String[] { result.get(0+(i*3)).toString(), result.get(1+(i*3)).toString(), result.get(2+(i*3)).toString()});
             }else if(quotient == 12){
-                data.add(new String[] { result.get(0*(i+1)).toString(), result.get(1*(i+1)).toString(), result.get(2*(i+1)).toString(), result.get(8*(i+1)).toString(), result.get(9*(i+1)).toString(), result.get(10*(i+1)).toString(), result.get(11*(i+1)).toString(), result.get(3*(i+1)).toString(),
-                    result.get((result.get((7*(i+1))).toString().equals("1"))?(5*(i+1)):(4*(i+1))).toString()});
+                data.add(new String[] { result.get(0+(i*12)).toString(), result.get(1+(i*12)).toString(), result.get(2+(i*12)).toString(), result.get(8+(i*12)).toString(), result.get(9+(i*12)).toString(), result.get(10+(i*12)).toString(), result.get(11+(i*12)).toString(), result.get(3+(i*12)).toString(),
+                    result.get((result.get((7+(i*12))).toString().equals("1"))?(5+(i*12)):(4+(i*12))).toString()});
             }
-            
         }
 
         return data;

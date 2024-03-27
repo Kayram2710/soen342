@@ -1,5 +1,6 @@
 package ca.concordia.airport;
 
+import ca.concordia.FlightTracker;
 import ca.concordia.location.City;
 
 public class Airport {
@@ -11,6 +12,12 @@ public class Airport {
         this.name = name;
         this.letterCode = letterCode;
         this.location = location;
+        sendtoDB();
+    }
+
+    private void sendtoDB(){
+        String command = this.toSQL();
+        FlightTracker.Tracker.accessDB().passStatement(command);
     }
 
     public String getName() {
@@ -38,7 +45,7 @@ public class Airport {
     }
 
     public String toSQL(){
-        String command = "Insert into Airport (letterCode, locationID, name) values ('"+this.letterCode+"', '"+this.location.getName()+"', '"+this.name+"');";
+        String command = "INSERT OR IGNORE into Airport (letterCode, locationID, name) values ('"+this.letterCode+"', '"+this.location.getName()+"', '"+this.name+"');";
         return command;
     }
 }
