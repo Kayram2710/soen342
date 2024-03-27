@@ -1,13 +1,13 @@
 package ca.concordia.flight;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airport;
 
 public class PrivateFlight extends Flight{
 
-    public PrivateFlight(String flightNumber, Airport source, Airport destination, Date scheduledDepart, Date scheduledArriv, Date actualDepart, Date actualArriv, Aircraft plane) {
+    public PrivateFlight(String flightNumber, Airport source, Airport destination, LocalDateTime scheduledDepart, LocalDateTime scheduledArriv, LocalDateTime actualDepart, LocalDateTime actualArriv, Aircraft plane) {
         super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv);
         super.setPlane(plane);
     }
@@ -25,6 +25,12 @@ public class PrivateFlight extends Flight{
     @Override
     public String toString(){
         return super.toString()  +
-        "," + this.getOperator().getLetteCode();
+        "," + this.getOperator().getLetterCode();
+    }
+
+    @Override
+    public String toSql(){
+        String command = super.toSql()+"null,"+super.getPlane().getAircraftID()+",'"+this.operator.getLetterCode()+"', 1 ,'";
+        return command;
     }
 }

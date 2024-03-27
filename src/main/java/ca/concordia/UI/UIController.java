@@ -1,13 +1,16 @@
-package ca.concordia;
+package ca.concordia.UI;
 
 import java.io.IOException;
+import java.time.*;
 import java.util.ArrayList;
-import java.util.Date;
 
+import ca.concordia.App;
+import ca.concordia.FlightTracker;
 import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airline;
 import ca.concordia.airport.Airport;
-import ca.concordia.database.Registry;
+import ca.concordia.flight.CargoFlight;
+import ca.concordia.flight.CommercialFlight;
 import ca.concordia.flight.Flight;
 import ca.concordia.flight.NonPrivateFlight;
 import ca.concordia.flight.PrivateFlight;
@@ -20,9 +23,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 
 //UI Class
 public class UIController {
@@ -32,103 +38,42 @@ public class UIController {
     private TableView<String[]> table;
     @FXML
     private Label title;
-
     @FXML
-    private void switchToSecondary() throws IOException {
-        App.setRoot("secondary");
-    }
+    private TextField usernameLoginField;
+    @FXML
+    private PasswordField passwordLoginField;
+    @FXML
+    private Label statusLabel;
 
     //private variables
-    private Registry registry;
-    private FlightTracker flightTracker;
+    private FlightTracker flightTracker = FlightTracker.Tracker;
 
-    //Hardcoded Data
-    public void hardCodeReg(){
 
-        //create containers
-        ArrayList<Flight> flights = new ArrayList<>();
-        ArrayList<Airport> airports = new ArrayList<>();
-        ArrayList<Aircraft> aircrafts = new ArrayList<>();
-        ArrayList<Airline> airlines = new ArrayList<>();
-        ArrayList<User> users = new ArrayList<>();
+    //FXML function to switch pages
+    @FXML
+    private void switchPage(String fxml) throws IOException {
+        App.setRoot(fxml);
+    }
 
-        //instantiate objects
-        Temperature temp1 = new Temperature(25, "Celcius");
-        Temperature temp2 = new Temperature(-5, "Celcius");
+    @FXML
+    private void loginButtonClicked() {
+        String username = usernameLoginField.getText();
+        String password = passwordLoginField.getText();
 
-        City antigua = new City("Antigua", "Guatemala", temp1);
-        City toronto = new City("Toronto", "Canada", temp2);
-
-        Airport airport1 = new Airport("Antigua", "ANU", antigua);
-        Airport airport2 = new Airport("Toronto", "YYZ", toronto);
-
-        Airline airline1 = new Airline("Sunwing");
-
-        Aircraft aircraft1 = new Aircraft(airline1, 0, airport2);
-        Aircraft aircraft2 = new Aircraft(airline1, 0, airport2);
-
-        //NOTE: WE NEED TO USE A DIFFERANT DATE PACKAGE
-        Date date1 = new Date(100000000);
-        Date date2 = new Date(200000000);
-        Date date3 = new Date(300000000);
-        Date date4 = new Date(400000000);
-        Date date5 = new Date(500000000);
-        Date date6 = new Date(600000000);
-
-        Flight flight1 = new PrivateFlight("WG117", airport1, airport2, date1, date2, date1, date2, aircraft1);
-        Flight flight2 = new NonPrivateFlight("WG120", airport2, airport1, date3, date4, date3, date4);
-        Flight flight3 = new NonPrivateFlight("WG118", airport2, airport1, date5, date6, date5, date6);
-
-        User user = new User("Regular", "Test");
-        User user1 = new AirportAdmin("PortGuy", "Test", airport1);
-        User user2 = new AirlineAdmin("LineGuy", "Test", airline1);
-        
-        /* Date Testing
-        System.out.println(date1);
-        System.out.println(date2);
-        System.out.println(date3);
-        System.out.println(date4);
-        System.out.println(date5);
-        System.out.println(date6);
-        */
-
-        //fill containers
-        airports.add(airport1);
-        airports.add(airport2);
-
-        aircrafts.add(aircraft1);
-        aircrafts.add(aircraft2);
-
-        airlines.add(airline1);
-        
-        airline1.addAircraft(aircraft1);
-        airline1.addAircraft(aircraft2);
-
-        users.add(user1);
-        users.add(user2);
-        users.add(user);
-
-        registry = new Registry(flights, airports, aircrafts, airlines, users);
-        flightTracker = new FlightTracker(user ,registry);
-
-        //testing
-        flightTracker.setLoggedUser(user1);
-        System.out.println(flightTracker.registerFlight(flight1));
-
-        flightTracker.setLoggedUser(user2);
-        System.out.println(flightTracker.registerFlight(flight2));
-        System.out.println(flightTracker.registerFlight(flight3));
+        if (flightTracker.validateLogin(username, password)) {
+            // Successful login
+            statusLabel.setText("Login successful");
+        } else {
+            statusLabel.setText("Invalid username or password");
+        }
     }
 
     @FXML
     public void initialize() {
-        
-        hardCodeReg();
-        buildGuestTable(registry);
 
     }
 
-    private void buildRegisteredTable(Registry reg) {
+    private void buildRegisteredTable() {
 
         table.getColumns().clear();
     
@@ -167,8 +112,9 @@ public class UIController {
         table.setItems(data);
     }
 
-    private void buildGuestTable(Registry reg) {
-        table.getColumns().clear();;
+    private void buildGuestTable() {
+
+        table.getColumns().clear();
         // Initialize Columns
         TableColumn<String[], String> numberColumn = new TableColumn<String[], String>();
         TableColumn<String[], String> sourceColumn = new TableColumn<String[], String>();
@@ -206,18 +152,27 @@ public class UIController {
             });
         }
     }
-    //Temp event handlers for testing purposes
-    public void onGuestButton(ActionEvent event){
 
-        flightTracker.setLoggedUser(null);
-        this.buildGuestTable(registry);
+    //Temp event handlers for testing purposes
+    public void onGuestLoginButton(ActionEvent event) throws IOException{
+
+        switchPage("index");
+
+        onGuestButton(event);
+    }
+
+        //Temp event handlers for testing purposes
+    public void onGuestButton(ActionEvent event) throws IOException{
+
+
+        buildGuestTable();
         title.setText("Guest User");
     }
 
     public void onRegistedButton(ActionEvent event){
 
         flightTracker.setLoggedUser(new User("test", "test"));
-        this.buildRegisteredTable(registry);
+        this.buildRegisteredTable();
         title.setText("Registered User");
 
     }
@@ -229,8 +184,8 @@ public class UIController {
         Airport airport1 = new Airport("Antigua", "ANU", antigua);
 
         flightTracker.setLoggedUser(new AirportAdmin("test", "test",airport1));
-        this.buildRegisteredTable(registry);
+        this.buildRegisteredTable();
         title.setText("Airport User");
     }
-
+    
 }

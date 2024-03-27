@@ -46,4 +46,10 @@ public class Aircraft {
         this.reserved = reserved;
     }
 
+    public String toSql(){
+        String command = "Insert into Aircraft (aircraftID, airportID, reserved) values ("+aircraftID+",'"+this.location.getLetterCode()+"', "+getReserved()+");";
+        command = command + "Insert into Fleet (aircraftID, airlineName) values ("+aircraftID+",'"+this.operator.getName()+"');";
+        return command;
+    }
+
 }

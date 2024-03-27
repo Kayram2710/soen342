@@ -5,6 +5,12 @@ public class City {
     private String country;
     private Temperature temp;
 
+    public City(String name, String country, Temperature temp) {
+        this.name = name;
+        this.country = country;
+        this.temp = temp;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -29,10 +35,9 @@ public class City {
         this.temp = temp;
     }
 
-    public City(String name, String country, Temperature temp) {
-        this.name = name;
-        this.country = country;
-        this.temp = temp;
+    public String toSql(){
+        String command = "Insert into City (name, country, temperature, metric) values ('"+this.name+"', '"+this.country+"', "+this.temp.getTemperature()+",'"+this.temp.getMetric()+"');";
+        return command;
     }
 
 }
