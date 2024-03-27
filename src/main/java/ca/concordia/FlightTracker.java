@@ -138,7 +138,7 @@ public class FlightTracker {
 
         command = newFlight.toSql()+loggedUser.getName()+"');";
 
-        Db.passStatement(command);
+        //Db.passStatement(command);
 
         //return true if nothing fails
         return true;
