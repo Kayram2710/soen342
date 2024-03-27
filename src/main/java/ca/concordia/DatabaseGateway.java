@@ -2,19 +2,17 @@ package ca.concordia;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
-
 
 public class DatabaseGateway {
 
     private Connection connection = null;
     private Statement statement = null;
-    private String url = "jdbc:sqlite:Database\\database.db";
+    //private String path = "jdbc:sqlite:Database\\database.db";
 
-    public DatabaseGateway(){
+    public DatabaseGateway(String path){
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection(url);
+            connection = DriverManager.getConnection(path);
             statement = connection.createStatement();
         } catch (ClassNotFoundException e) {
             System.err.println("Error loading SQLite JDBC driver: " + e.getMessage());
@@ -31,8 +29,8 @@ public class DatabaseGateway {
         }
     }
 
-    public List<Object> runQuery(String command) {
-        List<Object> result = new ArrayList<>();
+    public ArrayList<Object> runQuery(String command) {
+        ArrayList<Object> result = new ArrayList<>();
 
         try {
 

@@ -4,12 +4,12 @@ import ca.concordia.location.City;
 
 public class Airport {
     private String name;
-    private String letteCode;
+    private String letterCode;
     private City location;
     
-    public Airport(String name, String letteCode, City location) {
+    public Airport(String name, String letterCode, City location) {
         this.name = name;
-        this.letteCode = letteCode;
+        this.letterCode = letterCode;
         this.location = location;
     }
 
@@ -21,12 +21,12 @@ public class Airport {
         this.name = name;
     }
 
-    public String getLetteCode() {
-        return this.letteCode;
+    public String getLetterCode() {
+        return this.letterCode;
     }
 
-    public void setLetteCode(String letteCode) {
-        this.letteCode = letteCode;
+    public void setLetterCode(String letteCode) {
+        this.letterCode = letteCode;
     }
 
     public City getLocation() {
@@ -35,5 +35,10 @@ public class Airport {
 
     public void getLocation(City location) {
         this.location = location;
+    }
+
+    public String toSQL(){
+        String command = "Insert into Airport (letterCode, locationID, name) values ('"+this.letterCode+"', '"+this.location.getName()+"', '"+this.name+"');";
+        return command;
     }
 }

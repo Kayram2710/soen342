@@ -1,4 +1,5 @@
 package ca.concordia.airport;
+import ca.concordia.FlightTracker;
 import ca.concordia.flight.Flight;
 
 import java.util.ArrayList;
@@ -10,6 +11,25 @@ public class Airline {
     public Airline(String name) {
         this.name = name;
         fleet = new ArrayList<Aircraft>();
+        setFleet();
+    }
+
+    public void setFleet(){
+        String command = "SELECT A.aircraftID , A.reserved, A.airportID FROM Aircraft A JOIN Fleet F ON A.aircraftId = F.aircraftId WHERE F.airlineName = '"+this.name+"'";
+        ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);
+        int size = result.size() / 3;
+        int index = 0;
+
+
+        for(int i = 0; i < size ;i++){
+
+            //System.out.println(result.get(index++));
+            //System.out.println(result.get(index++));
+            //System.out.println(result.get(index++));
+            //System.out.println(result.get(index++));
+            //fleet.add(new Aircraft(null, i, null));
+
+        }
     }
 
     public String getName() {
@@ -37,7 +57,7 @@ public class Airline {
     }
 
     //reserve aircraft in fleet
-    public boolean reserveAircraft(Flight newFlight){
+    public Aircraft reserveAircraft(Flight newFlight){
 
         //for all aircrafts in fleet
         for(Aircraft a: this.fleet){
@@ -49,12 +69,17 @@ public class Airline {
                 a.setReserved(true);
                 newFlight.setPlane(a);
                 
-                return true;
+                return a;
             }
         }
 
         //else return false
-        return false;
+        return null;
+    }
+
+    public String toSQL(){
+        String command = "Insert into Airline values ('"+this.name+"');";
+        return command;
     }
 
 }

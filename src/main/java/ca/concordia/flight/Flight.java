@@ -1,6 +1,6 @@
 package ca.concordia.flight;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airport;
 
@@ -8,13 +8,13 @@ public abstract class Flight {
     private String flightNumber;
     private Airport source;
     private Airport destination;
-    private Date scheduledDepart;
-    private Date scheduledArriv;
-    private Date actualDepart;
-    private Date actualArriv;
+    private LocalDateTime scheduledDepart;
+    private LocalDateTime scheduledArriv;
+    private LocalDateTime actualDepart;
+    private LocalDateTime actualArriv;
     private Aircraft plane;
 
-    public Flight(String flightNumber, Airport source, Airport destination, Date scheduledDepart, Date scheduledArriv, Date actualDepart, Date actualArriv) {
+    public Flight(String flightNumber, Airport source, Airport destination, LocalDateTime scheduledDepart, LocalDateTime scheduledArriv, LocalDateTime actualDepart, LocalDateTime actualArriv) {
         this.flightNumber = flightNumber;
         this.source = source;
         this.destination = destination;
@@ -48,35 +48,35 @@ public abstract class Flight {
         this.destination = destination;
     }
 
-    public Date getScheduledDepart() {
+    public LocalDateTime getScheduledDepart() {
         return this.scheduledDepart;
     }
 
-    public void setScheduledDepart(Date scheduledDepart) {
+    public void setScheduledDepart(LocalDateTime scheduledDepart) {
         this.scheduledDepart = scheduledDepart;
     }
 
-    public Date getScheduledArriv() {
+    public LocalDateTime getScheduledArriv() {
         return this.scheduledArriv;
     }
 
-    public void setScheduledArriv(Date scheduledArriv) {
+    public void setScheduledArriv(LocalDateTime scheduledArriv) {
         this.scheduledArriv = scheduledArriv;
     }
 
-    public Date getActualDepart() {
+    public LocalDateTime getActualDepart() {
         return this.actualDepart;
     }
 
-    public void setActualDepart(Date actualDepart) {
+    public void setActualDepart(LocalDateTime actualDepart) {
         this.actualDepart = actualDepart;
     }
 
-    public Date getActualArriv() {
+    public LocalDateTime getActualArriv() {
         return this.actualArriv;
     }
 
-    public void setActualArriv(Date actualArriv) {
+    public void setActualArriv(LocalDateTime actualArriv) {
         this.actualArriv = actualArriv;
     }
 
@@ -91,12 +91,18 @@ public abstract class Flight {
     @Override
     public String toString() {
         return getFlightNumber() + "," +
-                getSource().getLetteCode()+ "," +
-                getDestination().getLetteCode() + "," +
+                getSource().getLetterCode()+ "," +
+                getDestination().getLetterCode() + "," +
                 getScheduledDepart() + "," +
                 getScheduledArriv() + "," +
                 getActualDepart() + "," +
                 getActualArriv() + "," + 
                 ((getPlane() != null)? "N/A":getPlane().getAircraftID());
+    }
+
+    public String toSql(){
+        String command = "INSERT INTO Flight (actualArriv, actualDepart, scheduledArriv, scheduledDepart, sourceID, destinationID, flightNumber, airlineOperating, aircraftID , airportOperating, flightDiscriminator, recordWritter) VALUES(";
+        command = command +"'"+actualArriv+"','"+actualDepart+"','"+scheduledArriv+"','"+scheduledDepart+"','"+source.getLetterCode()+"','"+destination.getLetterCode()+"','"+flightNumber+"',";
+        return command;
     }
 }
