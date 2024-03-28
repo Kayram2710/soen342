@@ -1,9 +1,7 @@
 package ca.concordia.UI;
 
 import java.io.IOException;
-import java.time.*;
 import java.util.ArrayList;
-import java.util.List;
 
 import ca.concordia.App;
 import ca.concordia.FlightTracker;
@@ -12,31 +10,28 @@ import ca.concordia.airport.Airline;
 import ca.concordia.airport.Airport;
 import ca.concordia.flight.CargoFlight;
 import ca.concordia.flight.CommercialFlight;
-import ca.concordia.flight.Flight;
-import ca.concordia.flight.NonPrivateFlight;
 import ca.concordia.flight.PrivateFlight;
-import ca.concordia.location.City;
-import ca.concordia.location.Temperature;
 import ca.concordia.user.AirlineAdmin;
 import ca.concordia.user.AirportAdmin;
 import ca.concordia.user.SysAdmin;
 import ca.concordia.user.User;
+import ca.concordia.location.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
+@SuppressWarnings("unchecked")
 //UI Class
 public class UIController {
 
@@ -44,11 +39,27 @@ public class UIController {
     @FXML
     private TableView<String[]> table;
     @FXML
+    private TableView<String[]> fleetTable;
+    @FXML
     private Label title;
     @FXML
     private TextField usernameLoginField;
     @FXML
     private TextField flightNumber;
+    @FXML
+    private ComboBox<String> city;
+    @FXML
+    private TextField airpName;
+    @FXML
+    private TextField ltrCde;
+    @FXML
+    private TextField cityname;
+    @FXML
+    private TextField countryname;
+    @FXML
+    private TextField temp;
+    @FXML
+    private TextField airlName;
     @FXML
     private DatePicker scheduledDepart;
     @FXML
@@ -68,9 +79,17 @@ public class UIController {
     @FXML
     private ComboBox<String> sourceInput;
     @FXML
+    private ComboBox<String> airLoc;
+    @FXML
+    private ComboBox<String> metric;
+    @FXML
     private HBox airportBox;
     @FXML
     private HBox airlineBox;
+    @FXML
+    private HBox sysAdminBox;
+    @FXML
+    private VBox addflightform;
     @FXML
     private ComboBox<String> flightType;
     @FXML
@@ -82,6 +101,13 @@ public class UIController {
         "Airline Admin",
         "Airport Admin",
         "System Admin"
+    );
+
+    private final ObservableList<String> metrics = 
+    FXCollections.observableArrayList(
+        "Celsius",
+        "Kelvin",
+        "Fahrenheit"
     );
 
     private static String view ="";
@@ -101,6 +127,7 @@ public class UIController {
             airportBox.setDisable(true);
         }
     }
+
     private void populateLists(){
         ObservableList<String> airlines = FXCollections.observableArrayList();
         ObservableList<String> airports = FXCollections.observableArrayList();
@@ -108,10 +135,14 @@ public class UIController {
         for(Airline airline: this.flightTracker.fetchAllAirlines()){
             airlines.add(airline.getName());
         }
+
         for(Airport airport: this.flightTracker.fetchAllAirports()){
             airports.add(airport.getLetterCode());
         }
 
+        if(flightTracker.getLoggedUser() instanceof AirlineAdmin){
+            airLoc.setItems(airports);
+        }
         
         if(sourceInput != null){
             sourceInput.setItems(airports);
@@ -130,33 +161,75 @@ public class UIController {
 
     @FXML
     private void addFlight(){
-        Airport source = null;
-        Airport destination = null;
-        boolean registeredFlight = false;
-        for(Airport a: flightTracker.fetchAllAirports()){
-            if(a.getLetterCode().equals(sourceInput.getValue())){
-                source = a;
-            }
-            if(a.getLetterCode().equals(destinationInput.getValue())){
-                destination = a;
+
+        if(flightNumber.getText().isEmpty()){
+            addStatus.setText("Invalid Input: Enter flight Number.");
+            return;
+        }
+
+        if(sourceInput.getValue() == null || destinationInput.getValue() == null){
+            addStatus.setText("Invalid Input: Enter flight source and destination.");
+            return;
+        }
+
+        if(flightTracker.getLoggedUser() instanceof AirportAdmin){
+            String code = ((AirportAdmin)flightTracker.getLoggedUser()).getAirport().getLetterCode();
+            if(!(sourceInput.getValue().equals(code)||destinationInput.getValue().equals(code))){
+                addStatus.setText("Invalid Input: Private flight must land or depart from current Airport access.");
+                return;
             }
         }
+
+        if(sourceInput.getValue().equals(destinationInput.getValue())){
+            addStatus.setText("Invalid Input: Flight cannot have the same source and destination.");
+            return;
+        }
+
+        if(scheduledDepart.getValue()==null || scheduledArrival.getValue()==null){
+            addStatus.setText("Invalid Input: Enter flight dates.");
+            return;
+        }
+
+        if(scheduledDepart.getValue().atStartOfDay().compareTo(scheduledArrival.getValue().atStartOfDay()) >= 0){
+            addStatus.setText("Invalid Input: Arrival cannot be shceduled before departure.");
+            return;
+        }
+
+        Airport source = flightTracker.fetchAirport(sourceInput.getValue());
+        Airport destination = flightTracker.fetchAirport(destinationInput.getValue());;
+        int registeredFlight = 0;
 
         if(flightTracker.getLoggedUser() instanceof AirlineAdmin){
             if(flightType.getValue().equals("Cargo Flight")){
-                System.out.println("AAA");
-                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null, null);
+                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null);
                 registeredFlight = flightTracker.registerFlight(flight);
             }else if(flightType.getValue().equals("Commercial Flight")){
-                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null, null);
+                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null);
                 registeredFlight = flightTracker.registerFlight(flight);
             }
+        }else if(flightTracker.getLoggedUser() instanceof AirportAdmin){
+            PrivateFlight flight = new PrivateFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null);
+            registeredFlight = flightTracker.registerFlight(flight);
         }
 
-        if(registeredFlight){
-            addStatus.setText("Flight added successfully!");
-        }else{
-            addStatus.setText("Error adding flight.");
+        switch (registeredFlight) {
+            case 0:
+                addStatus.setText("Flight added successfully!");
+                break;
+            case 1:
+                addStatus.setText("Error: Arrival Airport already has a flight scheduled.");
+                break;
+            case 2:
+                addStatus.setText("Error: Departure Airport already has a flight scheduled.");
+                break;
+            case 3:
+                addStatus.setText("Error: No available aircrafts for this time.");
+                break;
+            case 4:
+                addStatus.setText("Error: Flight number already taken.");
+                break;
+            default:
+                break;
         }
 
         buildRegisteredTable();
@@ -165,55 +238,38 @@ public class UIController {
     @FXML
     public void initialize() {
 
-        // Airline air = new Airline("Sunwing");
-        // Temperature temp = new Temperature(25,"Celcius");
-        // Temperature temp2 = new Temperature(33,"Celcius");
-        // City city = new City("Veraguas", "Panama", temp);
-        // City city2 = new City("Panama City", "Panama", temp2);
-        // Airport airp = new Airport("Veraguas Aiport", "VEA", city);
-        // Airport airp2 = new Airport("Panama Aiport", "PTY", city2);
-
-        //  Aircraft cra1 = new Aircraft(air, 8, airp);
-        //  Aircraft cra2 = new Aircraft(air, 9, airp);
-        //  Aircraft cra3 = new Aircraft(air, 10, airp2);
-
-        // LocalDateTime date1 = LocalDateTime.of(2024, 5, 8, 18, 10, 0);
-        // LocalDateTime date2 = LocalDateTime.of(2024, 5, 8, 21, 25, 0);
-        // Flight newf = new CommercialFlight("WW390", airp, airp2, date1, date2, date1, date2, air);
-
-        // flightTracker.setLoggedUser(new AirlineAdmin("AirlineAdmin", "pass", air));
-        // flightTracker.registerFlight(newf);
-
-        // System.out.println(air.getFleet().size());
-        // for(Aircraft f : air.getFleet()){
-        // System.out.println(f.getAircraftID() + " " + f.getReserved());
-        // }
-
-        ArrayList<Airline> a = flightTracker.fetchAllAirlines();
-        for (Airline aircraft : a) {
-            System.out.println(aircraft.toSQL());
-        }
-
-        System.out.println(view);
         switch (view) {
             case "guest":
                 buildGuestTable();
                 break;
             case "registered":
+                airlineBox.setVisible(false);
+                sysAdminBox.setVisible(false);
+                addflightform.setVisible(false);
                 buildRegisteredTable();
                 if (flightTracker.getLoggedUser() instanceof AirlineAdmin) {
-                    ObservableList<String> flightOptions = FXCollections.observableArrayList(
-                            "Cargo Flight",
-                            "Commercial Flight");
+                    title.setText("Airline Adminsitration Page for: "+((AirlineAdmin)flightTracker.getLoggedUser()).getAirline().getName());
+                    //addStatus.setText("Enter flight source and destination.");
+                    addflightform.setVisible(true);
+                    airlineBox.setVisible(true);
+                    buildFleetTable();
+                    ObservableList<String> flightOptions = FXCollections.observableArrayList("Cargo Flight","Commercial Flight");
                     flightType.setItems(flightOptions);
                     flightType.setValue("Cargo Flight");
+                    populateLists();
                 } else if (flightTracker.getLoggedUser() instanceof AirportAdmin) {
-                    ObservableList<String> flightOptions = FXCollections.observableArrayList(
-                            "Private Flight");
+                    title.setText("Airport Adminsitration Page for: "+((AirportAdmin)flightTracker.getLoggedUser()).getAirport().getLetterCode());
+                    addflightform.setVisible(true);
+                    ObservableList<String> flightOptions = FXCollections.observableArrayList("Private Flight");
                     flightType.setItems(flightOptions);
                     flightType.setValue("Private Flight");
+                    populateLists();
+                } else if (flightTracker.getLoggedUser() instanceof SysAdmin){
+                    title.setText("System Adminsitration Page"); 
+                    sysAdminBox.setVisible(true);
+                    setCities();
+                    metric.setItems(metrics);
                 }
-                populateLists();
                 break;
             case "register":
                 userTypesBox.setItems(options);
@@ -222,14 +278,34 @@ public class UIController {
                 break;
         }
     }
+
+    @FXML
+    private void setCities(){
+        ObservableList<String> cities = FXCollections.observableArrayList();
+        for(City c: this.flightTracker.fetchAllCities()){
+            cities.add(c.getName());
+        }
+        city.setItems(cities);
+    }
+
     @FXML
     private void registerUser() throws IOException{
+        
         if(usernameLoginField.getText().isEmpty() || passwordLoginField.getText().isEmpty()){
+
             statusLabel.setText("Missing username or password");
+
         }else{
             User user;
+            
             if(userTypesBox.getValue().equals("Airline Admin")){
                 Airline airline = null;
+                
+                if(airlineInput.getValue() == null){
+                    statusLabel.setText("Missing Airline Selection");
+                    return;
+                }
+
                 for(Airline p : flightTracker.fetchAllAirlines()){
                     if(p.getName().equalsIgnoreCase(airlineInput.getValue())){
                         airline = p;
@@ -237,25 +313,55 @@ public class UIController {
                     }
                 }
                 user = new AirlineAdmin(usernameLoginField.getText(), passwordLoginField.getText(),airline);
+
             } else if(userTypesBox.getValue().equals("Airport Admin")){
                 Airport airport = null;
-                for(Airport p : flightTracker.fetchAllAirports()){
-                    if(p.getLetterCode().equalsIgnoreCase(airportInput.getValue())){
-                        airport = p;
-                        break;
-                    }
+
+                if(airportInput.getValue() == null){
+                    statusLabel.setText("Missing Airport Selection");
+                    return;
                 }
+
+                airport = flightTracker.fetchAirport(airportInput.getValue());
+
                 user = new AirportAdmin(usernameLoginField.getText(), passwordLoginField.getText(),airport);
+                
             } else if(userTypesBox.getValue().equals("System Admin")){
                 user = new SysAdmin(usernameLoginField.getText(), passwordLoginField.getText());
             }else{
                 user = new User(usernameLoginField.getText(), passwordLoginField.getText());
             }
+
             user.save();
+            flightTracker.setLoggedUser(user);
+            view = "registered";
             switchPage("index");
+
         }
        
     }
+
+    private void buildFleetTable(){
+
+        fleetTable.getColumns().clear();
+
+        // Initialize Columns
+        TableColumn<String[], String> IDColumn = new TableColumn<String[], String>();
+        TableColumn<String[], String> locationColumn = new TableColumn<String[], String>();
+
+        IDColumn.setText("Aircraft ID");
+        locationColumn.setText("Location");
+
+
+        fleetTable.getColumns().addAll(IDColumn, locationColumn);
+        
+        // Setting up collumns to read values
+        setUpFleetTableCells();
+        
+        ObservableList<String[]> data = ((AirlineAdmin)flightTracker.getLoggedUser()).getAirline().fleetTObservableList();
+        fleetTable.setItems(data);
+    }
+
 
     private void buildRegisteredTable() {
 
@@ -315,9 +421,25 @@ public class UIController {
         
         // Add the flights to the table
         ObservableList<String[]> data = flightTracker.getFlights();
-        System.out.println(flightTracker.getFlights().size());
-        System.out.println("AA" + table.getColumns().size());
         table.setItems(data);
+    }
+
+    private void setUpFleetTableCells() {
+
+        for (int columnIndex = 0; columnIndex < fleetTable.getColumns().size(); columnIndex++) {
+            
+            final int finalColumnIndex = columnIndex;
+            TableColumn<String[], String> column = (TableColumn<String[], String>) fleetTable.getColumns().get(finalColumnIndex);
+            column.setCellValueFactory(features -> {
+                String[] row = features.getValue();
+
+                if (row != null && row.length > finalColumnIndex) {
+                    return new SimpleStringProperty(row[finalColumnIndex]);
+                } else {
+                    return new SimpleStringProperty("");
+                }
+            });
+        }
     }
 
     private void setUpTableCells() {
@@ -332,7 +454,7 @@ public class UIController {
                 if (row != null && row.length > finalColumnIndex) {
                     return new SimpleStringProperty(row[finalColumnIndex]);
                 } else {
-                    return new SimpleStringProperty("<no data>");
+                    return new SimpleStringProperty("");
                 }
             });
         }
@@ -345,23 +467,13 @@ public class UIController {
 
         if (flightTracker.validateLogin(username, password)) {
             // Successful login
-            statusLabel.setText("Login successful");
+            statusLabel.setText("Login successful!");
             view = "registered";
             switchPage("index");
             title.setText("Registered User");
-            if (flightTracker.getLoggedUser() instanceof AirlineAdmin) {
-
-            }else if(flightTracker.getLoggedUser() instanceof AirportAdmin){
-
-            }else if(flightTracker.getLoggedUser() instanceof SysAdmin){
-
-            }else{
-
-            }
-
         } else {
-            statusLabel.setText("Invalid username or password");
-        }
+            statusLabel.setText("Invalid username or password.");
+        }   
     }
 
     @FXML
@@ -379,5 +491,85 @@ public class UIController {
         view = "";
         switchPage("login");
     }
+
+    public void loggout(ActionEvent event) throws IOException{
+        flightTracker.setLoggedUser(null);
+
+        view = "";
+        switchPage("login");
+    }
+
+    public void createAircraft(ActionEvent event) throws IOException{
+
+        if(airLoc.getValue()==null){
+            addStatus.setText("Error adding aircraft: No location selected.");
+            return;
+        }
+
+        String command = "Select aircraftID From Aircraft";
+        ArrayList<Object> result = flightTracker.accessDB().runQuery(command);
+        
+        new Aircraft(((AirlineAdmin)flightTracker.getLoggedUser()).getAirline(), result.size(), flightTracker.fetchAirport(airLoc.getValue()));
+
+        buildFleetTable();
+        addStatus.setText("Aircraft Added!");
+    }
+
+    public void createAirport(ActionEvent event) throws IOException{
+
+        if(ltrCde.getText().isEmpty()){
+            addStatus.setText("Error adding airport: No code entered.");
+            return;
+        }else if(city.getValue()==null){
+            addStatus.setText("Error adding airport: No city selected.");
+            return;
+        }else if(airpName.getText().isEmpty()){
+            addStatus.setText("Error adding airport: No name entered.");
+            return;
+        }
+
+        String command = "Select * From City where name="+city.getValue()+"";
+        ArrayList<Object> result = flightTracker.accessDB().runQuery(command);
+
+        Temperature temp = new Temperature(Double.parseDouble(result.get(2).toString()),result.get(3).toString());
+        City city = new City(result.get(0).toString(), result.get(1).toString(), temp);
+        new Airport(airpName.getText(),ltrCde.getText(), city);
+        
+        addStatus.setText("Airport Added!");
+    }
+
+    public void createAirline(ActionEvent event) throws IOException{
+
+        if(airlName.getText().isEmpty()){
+            addStatus.setText("Error adding airline: No name entered.");
+            return;
+        }
+
+        addStatus.setText("Airline Added!");
+
+        //add logic to add a flight
+    }
+
+    public void createCity(ActionEvent event) throws IOException{
+
+        if(cityname.getText().isEmpty()){
+            addStatus.setText("Error adding city: No name entered.");
+            return;
+        }else if(countryname.getText().isEmpty()){
+            addStatus.setText("Error adding city: No country entered.");
+            return;
+        }else if(temp.getText().isEmpty()){
+            addStatus.setText("Error adding city: No temperature entered.");
+            return;
+        }else if(metric.getValue()==null){
+            addStatus.setText("Error adding city: No metric selected.");
+            return;
+        }
+
+        new City(cityname.getText(), countryname.getText(), new Temperature(Double.parseDouble(temp.getText()), metric.getValue()));
+        addStatus.setText("City Added!");
+        setCities();
+    }
+
 
 }

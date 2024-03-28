@@ -12,10 +12,11 @@ public class App extends Application {
     private static Scene scene;
    
     //To start the fxml at index
+    @SuppressWarnings("exports")
     @Override
     public void start(Stage stage) throws IOException {
         //Change guest to registered to switch between views
-        scene = new Scene(loadFXML("login"), 1140, 640);
+        scene = new Scene(loadFXML("login"), 1140, 740);
         stage.setScene(scene);
         stage.show();  
     }
@@ -30,7 +31,6 @@ public class App extends Application {
     }
    
     public static void main(String[] args) {
-
         launch();
     }
 }

@@ -11,7 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" maxHeight="610.0" minHeight="610.0" minWidth="1400.0" prefHeight="610.0" prefWidth="1400.0" spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ca.concordia.UI.UIController">
+
+<VBox alignment="CENTER" minHeight="610.0" minWidth="1400.0" prefHeight="610.0" prefWidth="1400.0" spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ca.concordia.UI.UIController">
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
    </padding>
@@ -21,81 +22,145 @@
             <Font name="Times New Roman" size="20.0" />
          </font>
       </Label>
-      <TableView fx:id="table" prefHeight="200.0" prefWidth="200.0" />
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+      <TableView fx:id="table" minHeight="200.0" prefWidth="200.0" />
+      <VBox fx:id="addflightform">
+         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+            <children>
+               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <children>
+                     <Label text="Flight Type" />
+                     <ComboBox fx:id="flightType" minWidth="175.0" prefWidth="175.0">
+                        <VBox.margin>
+                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
+                        </VBox.margin>
+                     </ComboBox>
+                  </children>
+               </VBox>
+               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <children>
+                     <Label text="Flight Number" />
+                     <TextField fx:id="flightNumber" minWidth="125.0">
+                        <VBox.margin>
+                           <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                        </VBox.margin>
+                     </TextField>
+                  </children>
+               </VBox>
+               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <children>
+                     <Label text="Source" />
+                     <ComboBox fx:id="sourceInput" minWidth="100.0" prefWidth="150.0">
+                        <VBox.margin>
+                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
+                        </VBox.margin>
+                     </ComboBox>
+                  </children>
+               </VBox>
+               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <children>
+                     <Label text="Destination" />
+                     <ComboBox fx:id="destinationInput" minWidth="100.0" prefWidth="150.0">
+                        <VBox.margin>
+                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
+                        </VBox.margin>
+                     </ComboBox>
+                  </children>
+               </VBox>
+               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <children>
+                     <Label text="Departure" />
+                     <DatePicker fx:id="scheduledDepart" minWidth="115.0" prefWidth="100.0">
+                        <VBox.margin>
+                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
+                        </VBox.margin>
+                     </DatePicker>
+                  </children>
+               </VBox>
+               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                  <children>
+                     <Label text="Arrival" />
+                     <DatePicker fx:id="scheduledArrival" minWidth="115.0">
+                        <VBox.margin>
+                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
+                        </VBox.margin>
+                     </DatePicker>
+                  </children>
+               </VBox>
+               <VBox alignment="CENTER_RIGHT" maxHeight="10.0">
+                  <children>
+                     <Button mnemonicParsing="false" onAction="#addFlight" text="Add Flight" >
+                     <VBox.margin>
+                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
+                        </VBox.margin>
+                     </Button>
+                  </children>
+               </VBox>
+            </children>
+         </HBox>
+      </VBox>
+      <HBox alignment="CENTER">
+            <children>
+               <VBox alignment="CENTER" prefHeight="200.0">
+                  <children>
+                     <Label fx:id="addStatus" text="" >
+                        <VBox.margin>
+                           <Insets bottom="1.0" left="9.0" right="9.0" top="1.0" />
+                        </VBox.margin>
+                     </Label>
+                  </children>
+               </VBox>
+            </children>
+         </HBox>
+      <HBox>
+      <HBox fx:id="airlineBox" alignment="CENTER_LEFT" minHeight="300.0" prefWidth="500.0" style="-fx-padding: 0 0 0 100px;" spacing="20.0">
          <children>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Label text="Flight Type" />
-                  <ComboBox fx:id="flightType" minWidth="175.0" prefWidth="175.0">
-                     <VBox.margin>
-                        <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                     </VBox.margin>
-                  </ComboBox>
-               </children>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Label text="Flight Number" />
-                  <TextField fx:id="flightNumber" minWidth="125.0">
-                     <VBox.margin>
-                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                     </VBox.margin>
-                  </TextField>
-               </children>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Label text="Source" />
-                  <ComboBox fx:id="sourceInput" minWidth="100.0" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                     </VBox.margin>
-                  </ComboBox>
-               </children>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Label text="Destination" />
-                  <ComboBox fx:id="destinationInput" minWidth="100.0" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                     </VBox.margin>
-                  </ComboBox>
-               </children>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Label text="Scheduled Depart" />
-                  <DatePicker fx:id="scheduledDepart" minWidth="115.0" prefWidth="100.0">
-                     <VBox.margin>
-                        <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                     </VBox.margin>
-                  </DatePicker>
-               </children>
-            </VBox>
-            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <Label text="Actual Arrival" />
-                  <DatePicker fx:id="scheduledArrival" minWidth="115.0">
-                     <VBox.margin>
-                        <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                     </VBox.margin>
-                  </DatePicker>
-               </children>
+            <VBox alignment="TOP_LEFT">
+               <Label text="Airline Fleet" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+               <TableView fx:id="fleetTable" minHeight="150.0" minWidth="150.0" prefWidth="150.0" />
+               <Label text="Select Location:"/>
+               <ComboBox fx:id="airLoc" minWidth="50.0" prefWidth="75.0"/>
+               <Button mnemonicParsing="false" onAction="#createAircraft" text="Add Aircraft"/>
             </VBox>
          </children>
+      </HBox>
+      <HBox fx:id="sysAdminBox" alignment="CENTER_RIGHT" prefHeight="300.0" prefWidth="150" maxHeight="300" spacing="20.0">
+         <children>
+            <VBox alignment="TOP_LEFT" style="-fx-border-color: grey; -fx-border-width: 1px;-fx-border-radius: 10px;-fx-padding: 20px;">
+               <Label text="City Form" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+               <Label text="City name:"/>
+               <TextField fx:id="cityname" minWidth="125.0" prefWidth="125.0"/>
+               <Label text="Country:" />
+               <TextField fx:id="countryname" minWidth="125.0"/>
+               <Label text="Temperature:" />
+               <TextField fx:id="temp" minWidth="125.0"/>
+               <Label text="Metric:" />
+               <ComboBox fx:id="metric" minWidth="125.0"/>
+               <Button mnemonicParsing="false" onAction="#createCity" text="Add City"/>
+            </VBox>
+            <VBox alignment="TOP_LEFT" style="-fx-border-color: grey; -fx-border-width: 1px;-fx-border-radius: 10px;-fx-padding: 20px;">
+               <Label text="Airport Form" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+               <Label text="Letter Code:" />
+               <TextField fx:id="ltrCde" minWidth="125.0"/>
+               <Label text="Select City:"/>
+               <ComboBox fx:id="city" minWidth="125.0" prefWidth="125.0"/>
+               <Label text="Airport Name:" />
+               <TextField fx:id="airpName" minWidth="125.0"/>
+               <Button mnemonicParsing="false" onAction="#createAirport" text="Add Airport"/>
+            </VBox>
+            <VBox alignment="TOP_LEFT" style="-fx-border-color: grey; -fx-border-width: 1px;-fx-border-radius: 10px;-fx-padding: 20px;">
+               <Label text="Airline Form" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+               <Label text="Select Airline Name:"/>
+               <TextField fx:id="airlName" minWidth="125.0" prefWidth="125.0"/>
+               <Button mnemonicParsing="false" onAction="#createAirline" text="Add Airline"/>
+            </VBox>
+         </children>
+      </HBox>
       </HBox>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
          <children>
             <VBox alignment="CENTER" prefHeight="200.0" prefWidth="300.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#addFlight" text="Add Flight" />
-                  <Label fx:id="addStatus">
-                     <VBox.margin>
-                        <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                     </VBox.margin>
-                  </Label>
+                  <Button mnemonicParsing="false" onAction="#loggout" text="Logout" />
                </children>
             </VBox>
          </children>

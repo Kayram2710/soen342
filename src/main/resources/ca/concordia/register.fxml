@@ -41,5 +41,6 @@
       </HBox>
       <Label fx:id="statusLabel" />
       <Button onAction="#registerUser" text="Register" />
+      <Button mnemonicParsing="false" onAction="#onBack" text="Back"/>
    </children>
 </VBox>

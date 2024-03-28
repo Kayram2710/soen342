@@ -9,7 +9,7 @@ public abstract class NonPrivateFlight extends Flight{
 
     private Airline operator;
 
-    public NonPrivateFlight(String flightNumber, Airport source, Airport destination, LocalDateTime scheduledDepart, LocalDateTime scheduledArriv, LocalDateTime actualDepart, LocalDateTime actualArriv, Airline operator) {
+    public NonPrivateFlight(String flightNumber, Airport source, Airport destination, LocalDateTime scheduledDepart, LocalDateTime scheduledArriv, LocalDateTime actualDepart, LocalDateTime actualArriv) {
         super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv);
         //setPlane(null);
     }

@@ -40,7 +40,7 @@ public class User {
        } else if (this instanceof AirlineAdmin) {
            command = "Insert or replace into User (login, pass, userDiscriminator, employedByAirline) values ('"
                    + this.name + "','"
-                   + this.password + "', " + 3 + ", '" + ((AirlineAdmin) this).getAirline().getName() + "');";
+                   + this.password + "', " + 4 + ", '" + ((AirlineAdmin) this).getAirline().getName() + "');";
        } else {
            command = "Insert or replace into User (login, pass, userDiscriminator) values ('" + this.name + "','"
                    + this.password + "', " + 1 + ");";

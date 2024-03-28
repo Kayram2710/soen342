@@ -1,10 +1,12 @@
 package ca.concordia.airport;
+import java.util.ArrayList;
+
 import ca.concordia.FlightTracker;
 import ca.concordia.flight.Flight;
 import ca.concordia.location.City;
 import ca.concordia.location.Temperature;
-
-import java.util.ArrayList;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Airline {
     private String name;
@@ -24,17 +26,15 @@ public class Airline {
 
     public void importFleet(){
         fleet.clear();
-        String command = "SELECT A.aircraftID, A.airportID, A.reserved FROM Aircraft A JOIN Fleet F ON A.aircraftId = F.aircraftId WHERE F.airlineName = '"+this.name+"'";
+        String command = "SELECT A.aircraftID, A.airportID FROM Aircraft A JOIN Fleet F ON A.aircraftId = F.aircraftId WHERE F.airlineName = '"+this.name+"'";
         ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);
         
-        int size = result.size() / 3;
+        int size = result.size() / 2;
         int index = 0;
 
         for(int i = 0; i < size ;i++){
-            System.out.println("AA");
             int aircraftID = Integer.parseInt(result.get(index++).toString());
             String letterCode = result.get(index++).toString();
-            boolean reserved = ((result.get(index++).toString()).equals("1"))?true:false;
 
             String command2 = "SELECT * From Airport A , City C WHERE A.letterCode = '"+letterCode+"' and A.locationID = C.name";
 
@@ -43,10 +43,9 @@ public class Airline {
             City city = new City(result2.get(3).toString(), result2.get(4).toString(), temp);
             Airport air = new Airport(result2.get(1).toString(), result2.get(0).toString(), city);
 
-            new Aircraft(this, aircraftID , air, reserved);
+            new Aircraft(this, aircraftID , air);
         }
 
-        System.out.println("FLEET SIZE: " + fleet.size());
     }
 
     public String getName() {
@@ -59,6 +58,17 @@ public class Airline {
 
     public ArrayList<Aircraft> getFleet() {
         return this.fleet;
+    }
+
+    public ObservableList<String[]> fleetTObservableList(){
+        ObservableList<String[]> data = FXCollections.observableArrayList();
+
+        for (Aircraft a : fleet) {
+            data.add(new String[] {String.valueOf(a.getAircraftID()),a.getLocation().getLetterCode()});
+        }
+
+        return data;
+
     }
 
     public void setFleet(ArrayList<Aircraft> fleet) {
@@ -74,32 +84,23 @@ public class Airline {
     }
 
     //reserve aircraft in fleet
-    public Aircraft reserveAircraft(Flight newFlight){
-
-        String command;
+    public boolean reserveAircraft(Flight newFlight){
 
         //for all aircrafts in fleet
         for(Aircraft a: this.fleet){
+            //find if aircraft a is at new flight location
+            if(a.getLocation().getLetterCode().equals(newFlight.getSource().getLetterCode())){
 
-            //if location match source and is available
-            System.out.println(a.getAircraftID() + "   " + a.getLocation());
-            if(a.getLocation().getLetterCode().equals(newFlight.getSource().getLetterCode()) && !a.getReserved()){
-
-                System.out.print("ASDASDASDASD");
-                //complete reservation
-                a.setReserved(true);
-
-                command = "UPDATE Aircraft SET reserved = true where (airportID == '"+a.getLocation().getLetterCode()+"' and reserved == false)";
-                FlightTracker.Tracker.accessDB().passStatement(command);
-
-                newFlight.setPlane(a);
-                
-                return a;
+                if(a.checkAvailability(newFlight)){
+                    //confirm reservation
+                    System.out.println("Found Free Aircraft");
+                    return true;    
+                }
             }
         }
 
-        //else return false
-        return null;
+        System.out.println("No Free Aircrafts");
+        return false;
     }
 
     public String toSQL(){
