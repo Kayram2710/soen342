@@ -3,6 +3,7 @@ package ca.concordia.UI;
 import java.io.IOException;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import ca.concordia.App;
 import ca.concordia.FlightTracker;
@@ -33,6 +34,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
 //UI Class
 public class UIController {
@@ -50,6 +52,14 @@ public class UIController {
     private Label statusLabel;
     @FXML
     private ComboBox<String> userTypesBox;
+    @FXML
+    private ComboBox<String> airlineInput;
+    @FXML
+    private ComboBox<String> airportInput;
+    @FXML
+    private HBox airportBox;
+    @FXML
+    private HBox airlineBox;
 
     private final ObservableList<String> options = 
     FXCollections.observableArrayList(
@@ -63,7 +73,32 @@ public class UIController {
     //private variables
     private FlightTracker flightTracker = FlightTracker.Tracker;
 
+    @FXML
+    private void onUserTypeChange(ActionEvent event){
+        if(userTypesBox.getValue().equals("Airline Admin")){
+            airlineBox.setDisable(false);
+            airportBox.setDisable(true);
+        } else if(userTypesBox.getValue().equals("Airport Admin")){
+            airlineBox.setDisable(true);
+            airportBox.setDisable(false);
+        } else {
+            airlineBox.setDisable(true);
+            airportBox.setDisable(true);
+        }
+    }
+    private void populateLists(){
+        ObservableList<String> airlines = FXCollections.observableArrayList();
+        ObservableList<String> airports = FXCollections.observableArrayList();
 
+        for(Airline airline: this.flightTracker.fetchAllAirlines()){
+            airlines.add(airline.getName());
+        }
+        for(Airport airport: this.flightTracker.fetchAllAirports()){
+            airports.add(airport.getLetterCode());
+        }
+        airportInput.setItems(airports);
+        airlineInput.setItems(airlines);
+    }
     //FXML function to switch pages
     @FXML
     private void switchPage(String fxml) throws IOException {
@@ -115,8 +150,42 @@ public class UIController {
             case "register":
                 userTypesBox.setItems(options);
                 userTypesBox.setValue("User");
+                populateLists();
                 break;
         }
+    }
+    @FXML
+    private void registerUser(){
+        if(usernameLoginField.getText().isEmpty() || passwordLoginField.getText().isEmpty()){
+            statusLabel.setText("Missing username or password");
+        }else{
+            User user;
+            if(userTypesBox.getValue().equals("Airline Admin")){
+                Airline airline = null;
+                for(Airline p : flightTracker.fetchAllAirlines()){
+                    if(p.getName().equalsIgnoreCase(airlineInput.getValue())){
+                        airline = p;
+                        break;
+                    }
+                }
+                user = new AirlineAdmin(usernameLoginField.getText(), passwordLoginField.getText(),airline);
+            } else if(userTypesBox.getValue().equals("Airport Admin")){
+                Airport airport = null;
+                for(Airport p : flightTracker.fetchAllAirports()){
+                    if(p.getLetterCode().equalsIgnoreCase(airportInput.getValue())){
+                        airport = p;
+                        break;
+                    }
+                }
+                user = new AirportAdmin(usernameLoginField.getText(), passwordLoginField.getText(),airport);
+            } else if(userTypesBox.getValue().equals("System Admin")){
+                user = new SysAdmin(usernameLoginField.getText(), passwordLoginField.getText());
+            }else{
+                user = new User(usernameLoginField.getText(), passwordLoginField.getText());
+            }
+            user.save();
+        }
+       
     }
 
     private void buildRegisteredTable() {

@@ -25,9 +25,21 @@
       </HBox>
       <HBox alignment="CENTER" spacing="10.0">
          <Label text="User Type:" />
-         <ComboBox fx:id="userTypesBox" prefWidth="150.0" promptText="Choose User Type" />
+         <ComboBox fx:id="userTypesBox" onAction="#onUserTypeChange" prefWidth="150.0" promptText="Choose User Type" />
+      </HBox>
+      <HBox fx:id="airlineBox" alignment="CENTER" disable="true" spacing="10.0">
+         <children>
+            <Label text="Airline:     " />
+            <ComboBox fx:id="airlineInput" prefWidth="150.0" promptText="Choose Airline" />
+         </children>
+      </HBox>
+      <HBox fx:id="airportBox" alignment="CENTER" disable="true" spacing="10.0">
+         <children>
+            <Label text="Airport:    " />
+            <ComboBox fx:id="airportInput" prefWidth="150.0" promptText="Choose Airport" />
+         </children>
       </HBox>
       <Label fx:id="statusLabel" />
-      <Button onAction="#registerButtonClicked" text="Register" />
+      <Button onAction="#registerUser" text="Register" />
    </children>
 </VBox>
