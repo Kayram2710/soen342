@@ -138,7 +138,7 @@ public class FlightTracker {
 
         command = newFlight.toSql()+loggedUser.getName()+"');";
 
-        //Db.passStatement(command);
+        Db.passStatement(command);
 
         //return true if nothing fails
         return true;
@@ -162,7 +162,7 @@ public class FlightTracker {
             String code = ((AirportAdmin)loggedUser).getAirport().getLetterCode();
             command = "SELECT * from Flight where flightDiscriminator <> 1 union Select * from Flight where flightDiscriminator == 1 and (sourceID == '"+code+"' or destinationID=='"+code+"') ";
         } else{
-            quotient = 3;
+            command = "SELECT * from Flight where flightDiscriminator <> 1";
         }
 
         result = Db.runQuery(command);

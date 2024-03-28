@@ -30,9 +30,8 @@ public class Airline {
         int size = result.size() / 3;
         int index = 0;
 
-
         for(int i = 0; i < size ;i++){
-
+            System.out.println("AA");
             int aircraftID = Integer.parseInt(result.get(index++).toString());
             String letterCode = result.get(index++).toString();
             boolean reserved = ((result.get(index++).toString()).equals("1"))?true:false;
@@ -44,9 +43,11 @@ public class Airline {
             City city = new City(result2.get(3).toString(), result2.get(4).toString(), temp);
             Airport air = new Airport(result2.get(1).toString(), result2.get(0).toString(), city);
 
-            fleet.add(new Aircraft(this, aircraftID , air, reserved));
-            System.out.println(aircraftID+" "+reserved);
+            new Aircraft(this, aircraftID , air, reserved);
+            //System.out.println(aircraftID+" "+reserved);
         }
+
+        System.out.println("FLEET SIZE: " + fleet.size());
     }
 
     public String getName() {
@@ -76,28 +77,30 @@ public class Airline {
     //reserve aircraft in fleet
     public Aircraft reserveAircraft(Flight newFlight){
 
-        String command = "SELECT * From Aircraft where (airportID == '"+newFlight.getSource().getLetterCode()+"' and reserved == false)";
-        ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);
+        String command;
+
+        // String command = "SELECT * From Aircraft where (airportID == '"+newFlight.getSource().getLetterCode()+"' and reserved == false)";
+        // ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);
 
 
-        System.out.println(result.toString());
+       // System.out.println(result.toString());
 
 
-        if(result.size() > 1){
+        // if(result.size() > 1){
 
-            //
+        //     //
 
-        }
+        // }
 
         //for all aircrafts in fleet
         for(Aircraft a: this.fleet){
 
             //System.out.println(a.getAircraftID());
+           // System.out.println(a.getAircraftID()+" "+a.getReserved());
 
             //if location match source and is available
             if(a.getLocation().equals(newFlight.getSource()) && !a.getReserved()){
 
-                System.out.println(a.getAircraftID()+" "+a.getReserved());
 
                 //complete reservation
                 a.setReserved(true);

@@ -64,8 +64,8 @@ public class Aircraft {
     }
 
     public String toSql(){
-        String command = "Insert or ignore into Aircraft (aircraftID, airportID, reserved) values ("+aircraftID+",'"+this.location.getLetterCode()+"', "+getReserved()+");";
-        command = command + "Insert or ignore into Fleet (aircraftID, airlineName) values ("+aircraftID+",'"+this.operator.getName()+"');";
+        String command = "Insert or replace into Aircraft (aircraftID, airportID, reserved) values ("+aircraftID+",'"+this.location.getLetterCode()+"', "+getReserved()+");";
+        command = command + "Insert or replace into Fleet (aircraftID, airlineName) values ("+aircraftID+",'"+this.operator.getName()+"');";
         return command;
     }
 
