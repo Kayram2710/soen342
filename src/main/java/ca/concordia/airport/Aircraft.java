@@ -14,6 +14,7 @@ public class Aircraft {
         this.aircraftID = aircraftID;
         this.location = location;
         this.reserved = false;
+        this.operator.getFleet().add(this);
         sendtoDB();
     }
 
@@ -22,6 +23,7 @@ public class Aircraft {
         this.aircraftID = aircraftID;
         this.location = location;
         this.reserved = reserved;
+        this.operator.getFleet().add(this);
         sendtoDB();
     }
 

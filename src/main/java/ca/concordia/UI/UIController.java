@@ -98,9 +98,9 @@ public class UIController {
         // }
 
 
-        ArrayList<Aircraft> a = flightTracker.fetchAllAvailableAircrafts();
-        for (Aircraft aircraft : a) {
-            System.out.println(aircraft.toSql());
+        ArrayList<Airline> a = flightTracker.fetchAllAirlines();
+        for (Airline aircraft : a) {
+            System.out.println(aircraft.toSQL());
         }
         
 

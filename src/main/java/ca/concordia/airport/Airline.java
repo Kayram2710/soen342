@@ -43,8 +43,7 @@ public class Airline {
             City city = new City(result2.get(3).toString(), result2.get(4).toString(), temp);
             Airport air = new Airport(result2.get(1).toString(), result2.get(0).toString(), city);
 
-            fleet.add(new Aircraft(this, aircraftID , air, reserved));
-            //System.out.println(aircraftID+" "+reserved);
+            new Aircraft(this, aircraftID , air, reserved);
         }
 
         System.out.println("FLEET SIZE: " + fleet.size());
