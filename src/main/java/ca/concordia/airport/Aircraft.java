@@ -26,7 +26,6 @@ public class Aircraft {
     }
 
     private void sendtoDB(){
-        this.operator.getFleet().add(this);
         String command = this.toSql();
         FlightTracker.Tracker.accessDB().passStatement(command);
     }

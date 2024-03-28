@@ -96,6 +96,14 @@ public class UIController {
         // for(Aircraft f : air.getFleet()){
         //     System.out.println(f.getAircraftID() + "  " + f.getReserved());
         // }
+
+
+        ArrayList<Aircraft> a = flightTracker.fetchAllAvailableAircrafts();
+        for (Aircraft aircraft : a) {
+            System.out.println(aircraft.toSql());
+        }
+        
+
         System.out.println(view);
         switch(view){
             case "guest":

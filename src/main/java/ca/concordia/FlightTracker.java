@@ -2,6 +2,7 @@ package ca.concordia;
 
 import java.util.ArrayList;
 
+import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airline;
 import ca.concordia.airport.Airport;
 import ca.concordia.flight.Flight;
@@ -12,7 +13,6 @@ import ca.concordia.location.Temperature;
 import ca.concordia.user.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.PieChart.Data;
 
 public class FlightTracker {
     private User loggedUser;
@@ -178,5 +178,55 @@ public class FlightTracker {
         }
 
         return data;
+    }
+
+    public ArrayList<Airport> fetchAllAirports(){
+
+        ArrayList<Airport> airports = new ArrayList<Airport>();
+        String command = "SELECT * From Airport A , City C WHERE A.locationID = C.name";
+        ArrayList<Object>  result = Db.runQuery(command);
+
+        int result_size = result.size()/7;
+
+        for (int i = 0; i < result_size; i++) {
+            Temperature temp = new Temperature(Double.parseDouble(result.get(5+(i*7)).toString()),result.get(6+(i*7)).toString());
+            City city = new City(result.get(3+(i*7)).toString(), result.get(4+(i*7)).toString(), temp);
+            airports.add(new Airport(result.get(1+(i*7)).toString(), result.get(0+(i*7)).toString(), city));
+        }
+
+        return airports;
+    }
+
+    public ArrayList<Airline> fetchAllAirlines(){
+        ArrayList<Airline> airlines = new ArrayList<Airline>();
+        String command = "SELECT * From Airline";
+        ArrayList<Object>  result = Db.runQuery(command);
+
+        for (Object o : result) {
+
+            airlines.add(new Airline(o.toString()));
+            
+        }
+
+        return airlines;
+    }
+
+    public ArrayList<Aircraft> fetchAllAvailableAircrafts(){
+
+        ArrayList<Aircraft> aircrafts = new ArrayList<Aircraft>();
+        ArrayList<Airline> airlines = fetchAllAirlines();
+
+
+        for (Airline airline : airlines) {
+            ArrayList<Aircraft> curr_fleet = airline.getFleet();
+            for (Aircraft aircraft : curr_fleet) {
+                if(!aircraft.getReserved()){
+                    aircrafts.add(aircraft);
+                }
+            }
+        }
+        
+        return aircrafts;
+
     }
 }
