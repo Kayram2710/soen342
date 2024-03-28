@@ -15,7 +15,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         //Change guest to registered to switch between views
-        scene = new Scene(loadFXML("login"), 640, 480);
+        scene = new Scene(loadFXML("login"), 1140, 640);
         stage.setScene(scene);
         stage.show();  
     }

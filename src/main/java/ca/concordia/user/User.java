@@ -34,14 +34,18 @@ public class User {
            command = "Insert or replace into User (login, pass, userDiscriminator) values ('" + this.name + "','"
                    + this.password + "', " + 2 + ");";
        } else if (this instanceof AirportAdmin) {
-           command = "Insert or replace into User (login, pass, userDiscriminator, employedByAirport) values ("
-                   + this.name + ",'"
-                   + this.password + "', " + 3 + ", '" + ((AirportAdmin) this).getAirport().getLetterCode() + "'');";
+           command = "Insert or replace into User (login, pass, userDiscriminator, employedByAirport) values ('"
+                   + this.name + "','"
+                   + this.password + "', " + 3 + ", '" + ((AirportAdmin) this).getAirport().getLetterCode() + "');";
+       } else if (this instanceof AirlineAdmin) {
+           command = "Insert or replace into User (login, pass, userDiscriminator, employedByAirline) values ('"
+                   + this.name + "','"
+                   + this.password + "', " + 3 + ", '" + ((AirlineAdmin) this).getAirline().getName() + "');";
        } else {
            command = "Insert or replace into User (login, pass, userDiscriminator) values ('" + this.name + "','"
                    + this.password + "', " + 1 + ");";
        }
-
+       
        return command;
    }
 
@@ -56,7 +60,6 @@ public class User {
             return true;
         }catch(Exception e){
             e.printStackTrace();
-            System.out.println(e.getMessage());
             return false;
         }
    }

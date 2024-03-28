@@ -107,6 +107,7 @@ public class FlightTracker {
         result = Db.runQuery(command);
 
         if(result.size() > 0 ){
+            System.out.println("L");
             return false;
         }
 
@@ -114,6 +115,7 @@ public class FlightTracker {
         result = Db.runQuery(command);
 
         if(result.size() > 0 ){
+            System.out.println("M");
             return false;
         }
 
@@ -124,6 +126,7 @@ public class FlightTracker {
 
             //if reservation failed then method fails
             if(userAirline.reserveAircraft(newFlight)==null){
+                System.out.println("X");
                 return false;
             }
         }

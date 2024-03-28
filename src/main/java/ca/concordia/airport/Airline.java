@@ -78,29 +78,14 @@ public class Airline {
 
         String command;
 
-        // String command = "SELECT * From Aircraft where (airportID == '"+newFlight.getSource().getLetterCode()+"' and reserved == false)";
-        // ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);
-
-
-       // System.out.println(result.toString());
-
-
-        // if(result.size() > 1){
-
-        //     //
-
-        // }
-
         //for all aircrafts in fleet
         for(Aircraft a: this.fleet){
 
-            //System.out.println(a.getAircraftID());
-           // System.out.println(a.getAircraftID()+" "+a.getReserved());
-
             //if location match source and is available
-            if(a.getLocation().equals(newFlight.getSource()) && !a.getReserved()){
+            System.out.println(a.getAircraftID() + "   " + a.getLocation());
+            if(a.getLocation().getLetterCode().equals(newFlight.getSource().getLetterCode()) && !a.getReserved()){
 
-
+                System.out.print("ASDASDASDASD");
                 //complete reservation
                 a.setReserved(true);
 

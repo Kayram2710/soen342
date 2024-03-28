@@ -28,6 +28,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
@@ -47,6 +48,12 @@ public class UIController {
     @FXML
     private TextField usernameLoginField;
     @FXML
+    private TextField flightNumber;
+    @FXML
+    private DatePicker scheduledDepart;
+    @FXML
+    private DatePicker scheduledArrival;
+    @FXML
     private PasswordField passwordLoginField;
     @FXML
     private Label statusLabel;
@@ -57,9 +64,17 @@ public class UIController {
     @FXML
     private ComboBox<String> airportInput;
     @FXML
+    private ComboBox<String> destinationInput;
+    @FXML
+    private ComboBox<String> sourceInput;
+    @FXML
     private HBox airportBox;
     @FXML
     private HBox airlineBox;
+    @FXML
+    private ComboBox<String> flightType;
+    @FXML
+    private Label addStatus;
 
     private final ObservableList<String> options = 
     FXCollections.observableArrayList(
@@ -96,13 +111,55 @@ public class UIController {
         for(Airport airport: this.flightTracker.fetchAllAirports()){
             airports.add(airport.getLetterCode());
         }
-        airportInput.setItems(airports);
-        airlineInput.setItems(airlines);
+
+        
+        if(sourceInput != null){
+            sourceInput.setItems(airports);
+            destinationInput.setItems(airports);
+        }else{
+            airportInput.setItems(airports);
+            airlineInput.setItems(airlines);
+        }
     }
+
     //FXML function to switch pages
     @FXML
     private void switchPage(String fxml) throws IOException {
         App.setRoot(fxml);
+    }
+
+    @FXML
+    private void addFlight(){
+        Airport source = null;
+        Airport destination = null;
+        boolean registeredFlight = false;
+        for(Airport a: flightTracker.fetchAllAirports()){
+            if(a.getLetterCode().equals(sourceInput.getValue())){
+                source = a;
+            }
+            if(a.getLetterCode().equals(destinationInput.getValue())){
+                destination = a;
+            }
+        }
+
+        if(flightTracker.getLoggedUser() instanceof AirlineAdmin){
+            if(flightType.getValue().equals("Cargo Flight")){
+                System.out.println("AAA");
+                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null, null);
+                registeredFlight = flightTracker.registerFlight(flight);
+            }else if(flightType.getValue().equals("Commercial Flight")){
+                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null, null);
+                registeredFlight = flightTracker.registerFlight(flight);
+            }
+        }
+
+        if(registeredFlight){
+            addStatus.setText("Flight added successfully!");
+        }else{
+            addStatus.setText("Error adding flight.");
+        }
+
+        buildRegisteredTable();
     }
 
     @FXML
@@ -129,23 +186,34 @@ public class UIController {
 
         // System.out.println(air.getFleet().size());
         // for(Aircraft f : air.getFleet()){
-        //     System.out.println(f.getAircraftID() + "  " + f.getReserved());
+        // System.out.println(f.getAircraftID() + " " + f.getReserved());
         // }
-
 
         ArrayList<Airline> a = flightTracker.fetchAllAirlines();
         for (Airline aircraft : a) {
             System.out.println(aircraft.toSQL());
         }
-        
 
         System.out.println(view);
-        switch(view){
+        switch (view) {
             case "guest":
                 buildGuestTable();
                 break;
             case "registered":
                 buildRegisteredTable();
+                if (flightTracker.getLoggedUser() instanceof AirlineAdmin) {
+                    ObservableList<String> flightOptions = FXCollections.observableArrayList(
+                            "Cargo Flight",
+                            "Commercial Flight");
+                    flightType.setItems(flightOptions);
+                    flightType.setValue("Cargo Flight");
+                } else if (flightTracker.getLoggedUser() instanceof AirportAdmin) {
+                    ObservableList<String> flightOptions = FXCollections.observableArrayList(
+                            "Private Flight");
+                    flightType.setItems(flightOptions);
+                    flightType.setValue("Private Flight");
+                }
+                populateLists();
                 break;
             case "register":
                 userTypesBox.setItems(options);
@@ -155,7 +223,7 @@ public class UIController {
         }
     }
     @FXML
-    private void registerUser(){
+    private void registerUser() throws IOException{
         if(usernameLoginField.getText().isEmpty() || passwordLoginField.getText().isEmpty()){
             statusLabel.setText("Missing username or password");
         }else{
@@ -184,6 +252,7 @@ public class UIController {
                 user = new User(usernameLoginField.getText(), passwordLoginField.getText());
             }
             user.save();
+            switchPage("index");
         }
        
     }
