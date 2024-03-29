@@ -1,7 +1,6 @@
 package ca.concordia.airport;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import ca.concordia.FlightTracker;
@@ -62,7 +61,6 @@ public class Aircraft {
 
         LocalDateTime scheduledDepart = newFlight.getScheduledDepart();
         LocalDateTime scheduledArriv = newFlight.getScheduledArriv();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
         //query for all fligths scheduled on aircraft a then return their departure and arrival
         command = "Select scheduledDepart , scheduledArriv  from Flight where aircraftID = "+aircraftID+";";
@@ -72,8 +70,8 @@ public class Aircraft {
         //loop through returned querries
         for (int i = 0; i < res_size; i++) {
 
-            LocalDateTime depart =  LocalDateTime.parse(result.get(0+(i*2)).toString(),formatter);
-            LocalDateTime arriv =  LocalDateTime.parse(result.get(1+(i*2)).toString(),formatter);
+            LocalDateTime depart =  LocalDateTime.parse(result.get(0+(i*2)).toString());
+            LocalDateTime arriv =  LocalDateTime.parse(result.get(1+(i*2)).toString());
 
             boolean isDepartInInterval = (scheduledDepart.compareTo(depart) >= 0 && scheduledDepart.compareTo(arriv) <= 0)?true:false;
             boolean isArrivInInterval = (scheduledArriv.compareTo(depart) >= 0 && scheduledArriv.compareTo(arriv) <= 0)?true:false;

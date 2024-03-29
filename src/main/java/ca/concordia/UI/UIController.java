@@ -1,6 +1,7 @@
 package ca.concordia.UI;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import ca.concordia.App;
@@ -63,7 +64,7 @@ public class UIController {
     @FXML
     private LocalDateTimeTextField scheduledDepart;
     @FXML
-    private LocalDateTimeTextField scheduledArrival;
+    private LocalDateTimeTextField scheduledArriv;
     @FXML
     private PasswordField passwordLoginField;
     @FXML
@@ -185,12 +186,15 @@ public class UIController {
             return;
         }
 
-        if(scheduledDepart.getText().isEmpty() || scheduledArrival.getText().isEmpty()){
+        if(scheduledDepart.getLocalDateTime() == null || scheduledArriv.getLocalDateTime() == null){
             addStatus.setText("Invalid Input: Enter flight dates.");
             return;
-        }    
+        }
+        
+        LocalDateTime depart = scheduledDepart.getLocalDateTime();
+        LocalDateTime arriv = scheduledArriv.getLocalDateTime();
 
-        if(scheduledDepart.getLocalDateTime().compareTo(scheduledArrival.getLocalDateTime()) >= 0){
+        if(depart.compareTo(arriv) >= 0){
             addStatus.setText("Invalid Input: Arrival cannot be shceduled before departure.");
             return;
         }
@@ -201,14 +205,14 @@ public class UIController {
 
         if(flightTracker.getLoggedUser() instanceof AirlineAdmin){
             if(flightType.getValue().equals("Cargo Flight")){
-                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, scheduledDepart.getLocalDateTime(), scheduledArrival.getLocalDateTime(), null, null);
+                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, depart, arriv, null, null);
                 registeredFlight = flightTracker.registerFlight(flight);
             }else if(flightType.getValue().equals("Commercial Flight")){
-                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, scheduledDepart.getLocalDateTime(), scheduledArrival.getLocalDateTime(), null, null);
+                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, depart, arriv, null, null);
                 registeredFlight = flightTracker.registerFlight(flight);
             }
         }else if(flightTracker.getLoggedUser() instanceof AirportAdmin){
-            PrivateFlight flight = new PrivateFlight(flightNumber.getText(), source, destination, scheduledDepart.getLocalDateTime(), scheduledArrival.getLocalDateTime(), null, null);
+            PrivateFlight flight = new PrivateFlight(flightNumber.getText(), source, destination, depart, arriv, null, null);
             registeredFlight = flightTracker.registerFlight(flight);
         } 
 
