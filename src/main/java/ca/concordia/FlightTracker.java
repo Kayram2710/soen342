@@ -257,7 +257,7 @@ public class FlightTracker {
         String command = "SELECT * From City";
         ArrayList<Object>  result = Db.runQuery(command);
 
-        int res_size = result.size()/4;
+        int res_size = result.size()/4; 
 
         for (int i = 0; i < res_size; i++) {
             cities.add(new City(result.get(0+(i*4)).toString(), result.get(1+(i*4)).toString(), new Temperature(Double.parseDouble(result.get(2+(i*4)).toString()), result.get(3+(i*4)).toString())));

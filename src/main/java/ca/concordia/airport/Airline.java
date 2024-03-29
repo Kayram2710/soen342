@@ -24,7 +24,7 @@ public class Airline {
         FlightTracker.Tracker.accessDB().passStatement(command);
     }
 
-    public void importFleet(){
+    private void importFleet(){
         fleet.clear();
         String command = "SELECT A.aircraftID, A.airportID FROM Aircraft A JOIN Fleet F ON A.aircraftId = F.aircraftId WHERE F.airlineName = '"+this.name+"'";
         ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);

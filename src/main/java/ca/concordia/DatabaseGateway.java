@@ -7,7 +7,6 @@ public class DatabaseGateway {
 
     private Connection connection = null;
     private Statement statement = null;
-    //private String path = "jdbc:sqlite:Database\\database.db";
 
     public DatabaseGateway(String path){
         try {
