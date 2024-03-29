@@ -29,6 +29,10 @@ public class DatabaseGateway {
         }
     }
 
+    public void unmannagedPass(String command) throws SQLException {
+        statement.executeUpdate(command);
+    }
+
     public ArrayList<Object> runQuery(String command) {
         ArrayList<Object> result = new ArrayList<>();
 

@@ -2,6 +2,7 @@ package ca.concordia;
 
 import java.util.ArrayList;
 
+import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airline;
 import ca.concordia.airport.Airport;
 import ca.concordia.flight.Flight;
@@ -12,8 +13,8 @@ import ca.concordia.location.Temperature;
 import ca.concordia.user.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.PieChart.Data;
 
+@SuppressWarnings("exports")
 public class FlightTracker {
     private User loggedUser;
 
@@ -50,8 +51,6 @@ public class FlightTracker {
         String command = "SELECT * FROM User U where login=='"+username+"'";
         ArrayList<Object> result = Db.runQuery(command);
 
-        System.out.println(result.toString());
-
         if(result.size()==0){
             return false; //Invalid Username
         }
@@ -72,14 +71,8 @@ public class FlightTracker {
             case 2:
                 newUser = new SysAdmin(username, password);
                 break;
-                
             case 3:
-                command = "SELECT * From Airport A , City C WHERE A.letterCode = '"+result.get(3)+"' and A.locationID = C.name";
-                result = Db.runQuery(command);
-                Temperature temp = new Temperature(Double.parseDouble(result.get(5).toString()),result.get(6).toString());
-                City city = new City(result.get(3).toString(), result.get(4).toString(), temp);
-                newUser = new AirportAdmin(username, password, new Airport(result.get(1).toString(), result.get(0).toString(), city));
-                System.out.println(((AirportAdmin)newUser).getAirport().toString());
+                newUser = new AirportAdmin(username, password, fetchAirport(result.get(3).toString()));
                 break;
             case 4:
                 command = "SELECT * From Airline A WHERE A.name = '"+ result.get(4)+"'";
@@ -98,34 +91,46 @@ public class FlightTracker {
         return true;
     }
 
-    public boolean registerFlight(Flight newFlight){
+    public int registerFlight(Flight newFlight){
         String command;
         ArrayList<Object> result;
 
-        //if user an airline admin, call the reserve aircraft function
-        if(this.loggedUser instanceof AirlineAdmin){
-
-            Airline userAirline = ((AirlineAdmin)loggedUser).getAirline();
-
-            //if reservation failed then method fails
-            if(userAirline.reserveAircraft(newFlight)==null){
-                return false;
-            }
-        }
+        System.out.print("Flight Register Result: ");
 
         //check for airport availabilities
         command = "SELECT destinationID, scheduledArriv FROM Flight where destinationID ='"+newFlight.getDestination().getLetterCode()+"' and scheduledArriv ='"+newFlight.getScheduledArriv().toString()+"';";
         result = Db.runQuery(command);
 
         if(result.size() > 0 ){
-            return false;
+            System.out.println("Arrival time already taken at arriving Airport.");
+            return 1;
         }
 
         command = "SELECT sourceID, scheduledDepart FROM Flight where sourceID ='"+newFlight.getSource().getLetterCode()+"' and scheduledDepart ='"+newFlight.getScheduledDepart().toString()+"';";
         result = Db.runQuery(command);
 
         if(result.size() > 0 ){
-            return false;
+            System.out.println("Deperature time already taken at departure Airport.");
+            return 2;
+        }
+
+        //if user an airline admin, call the reserve aircraft function
+        if(this.loggedUser instanceof AirlineAdmin){
+            Airline userAirline = ((AirlineAdmin)loggedUser).getAirline();
+
+            //if reservation failed then method fails
+            if(!userAirline.reserveAircraft(newFlight)){
+                return 3;
+            }
+
+        }else if(this.loggedUser instanceof AirportAdmin){
+            Airport userAirline = ((AirportAdmin)loggedUser).getAirport();
+
+            //if reservation failed then method fails
+            if(!userAirline.reserveAircraft(newFlight,fetchAllAircrafts())){
+                return 3;
+            }
+
         }
 
         //adds either a private or non private flight based on the user
@@ -138,10 +143,16 @@ public class FlightTracker {
 
         command = newFlight.toSql()+loggedUser.getName()+"');";
 
-        Db.passStatement(command);
+        try {
+            Db.unmannagedPass(command);
+        } catch (Exception e) {
+            System.out.println("Flight Number Already in use.");
+            return 4;
+        }
 
-        //return true if nothing fails
-        return true;
+        //return 0 if nothing fails
+        System.out.println("Succefully Added Flight.");
+        return 0;
     }
 
     //get flights method
@@ -162,7 +173,7 @@ public class FlightTracker {
             String code = ((AirportAdmin)loggedUser).getAirport().getLetterCode();
             command = "SELECT * from Flight where flightDiscriminator <> 1 union Select * from Flight where flightDiscriminator == 1 and (sourceID == '"+code+"' or destinationID=='"+code+"') ";
         } else{
-            quotient = 3;
+            command = "SELECT * from Flight where flightDiscriminator <> 1";
         }
 
         result = Db.runQuery(command);
@@ -170,15 +181,88 @@ public class FlightTracker {
 
         for (int i = 0; i < res_size; i++) {
             if(quotient == 3){
-                System.out.println("loop");
-                data.add(new String[] { result.get(0*(i+1)).toString(), result.get(1*(i+1)).toString(), result.get(2*(i+1)).toString()});
+                data.add(new String[] { result.get(0+(i*3)).toString(), result.get(1+(i*3)).toString(), result.get(2+(i*3)).toString()});
             }else if(quotient == 12){
-                data.add(new String[] { result.get(0*(i+1)).toString(), result.get(1*(i+1)).toString(), result.get(2*(i+1)).toString(), result.get(8*(i+1)).toString(), result.get(9*(i+1)).toString(), result.get(10*(i+1)).toString(), result.get(11*(i+1)).toString(), result.get(3*(i+1)).toString(),
-                    result.get((result.get((7*(i+1))).toString().equals("1"))?(5*(i+1)):(4*(i+1))).toString()});
+                data.add(new String[] { result.get(0+(i*12)).toString(), result.get(1+(i*12)).toString(), result.get(2+(i*12)).toString(), result.get(8+(i*12)).toString(), result.get(9+(i*12)).toString(), result.get(10+(i*12)).toString(), result.get(11+(i*12)).toString(), result.get(3+(i*12)).toString(),
+                    result.get((result.get((7+(i*12))).toString().equals("1"))?(5+(i*12)):(4+(i*12))).toString()});
             }
-            
         }
 
         return data;
+    }
+
+    public Airport fetchAirport(String letterCode){
+        Airport airport;
+        String command = "SELECT * From Airport A , City C WHERE A.locationID = C.name and A.letterCode = '"+letterCode+"'";
+        ArrayList<Object>  result = Db.runQuery(command);
+
+        Temperature temp = new Temperature(Double.parseDouble(result.get(5).toString()),result.get(6).toString());
+        City city = new City(result.get(3).toString(), result.get(4).toString(), temp);
+        airport = new Airport(result.get(2).toString(), result.get(0).toString(), city);
+        
+        return airport;
+
+    }
+
+    public ArrayList<Airport> fetchAllAirports(){
+
+        ArrayList<Airport> airports = new ArrayList<Airport>();
+        String command = "SELECT * From Airport A , City C WHERE A.locationID = C.name";
+        ArrayList<Object>  result = Db.runQuery(command);
+
+        int result_size = result.size()/7;
+
+        for (int i = 0; i < result_size; i++) {
+            Temperature temp = new Temperature(Double.parseDouble(result.get(5+(i*7)).toString()),result.get(6+(i*7)).toString());
+            City city = new City(result.get(3+(i*7)).toString(), result.get(4+(i*7)).toString(), temp);
+            airports.add(new Airport(result.get(2+(i*7)).toString(), result.get(0+(i*7)).toString(), city));
+        }
+
+        return airports;
+    }
+
+    public ArrayList<Airline> fetchAllAirlines(){
+        ArrayList<Airline> airlines = new ArrayList<Airline>();
+        String command = "SELECT * From Airline";
+        ArrayList<Object>  result = Db.runQuery(command);
+
+        for (Object o : result) {
+
+            airlines.add(new Airline(o.toString()));
+            
+        }
+
+        return airlines;
+    }
+
+    public ArrayList<Aircraft> fetchAllAircrafts(){
+
+        ArrayList<Aircraft> aircrafts = new ArrayList<Aircraft>();
+        ArrayList<Airline> airlines = fetchAllAirlines();
+
+        for (Airline airline : airlines) {
+            ArrayList<Aircraft> curr_fleet = airline.getFleet();
+            for (Aircraft aircraft : curr_fleet) {
+                aircrafts.add(aircraft);
+            }
+        }
+        
+        return aircrafts;
+
+    }
+
+    public ArrayList<City> fetchAllCities(){
+
+        ArrayList<City> cities = new ArrayList<City>();
+        String command = "SELECT * From City";
+        ArrayList<Object>  result = Db.runQuery(command);
+
+        int res_size = result.size()/4;
+
+        for (int i = 0; i < res_size; i++) {
+            cities.add(new City(result.get(0+(i*4)).toString(), result.get(1+(i*4)).toString(), new Temperature(Double.parseDouble(result.get(2+(i*4)).toString()), result.get(3+(i*4)).toString())));
+        }
+        return cities;
+
     }
 }

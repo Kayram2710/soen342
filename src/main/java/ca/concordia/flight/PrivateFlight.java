@@ -2,14 +2,12 @@ package ca.concordia.flight;
 
 import java.time.LocalDateTime;
 
-import ca.concordia.airport.Aircraft;
 import ca.concordia.airport.Airport;
 
 public class PrivateFlight extends Flight{
 
-    public PrivateFlight(String flightNumber, Airport source, Airport destination, LocalDateTime scheduledDepart, LocalDateTime scheduledArriv, LocalDateTime actualDepart, LocalDateTime actualArriv, Aircraft plane) {
+    public PrivateFlight(String flightNumber, Airport source, Airport destination, LocalDateTime scheduledDepart, LocalDateTime scheduledArriv, LocalDateTime actualDepart, LocalDateTime actualArriv) {
         super(flightNumber, source, destination, scheduledDepart, scheduledArriv, actualDepart, actualArriv);
-        super.setPlane(plane);
     }
 
     private Airport operator;

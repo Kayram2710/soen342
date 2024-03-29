@@ -1,8 +1,12 @@
 package ca.concordia.airport;
+import java.util.ArrayList;
+
 import ca.concordia.FlightTracker;
 import ca.concordia.flight.Flight;
-
-import java.util.ArrayList;
+import ca.concordia.location.City;
+import ca.concordia.location.Temperature;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Airline {
     private String name;
@@ -11,25 +15,37 @@ public class Airline {
     public Airline(String name) {
         this.name = name;
         fleet = new ArrayList<Aircraft>();
-        setFleet();
+        importFleet();
+        sendtoDB();
     }
 
-    public void setFleet(){
-        String command = "SELECT A.aircraftID , A.reserved, A.airportID FROM Aircraft A JOIN Fleet F ON A.aircraftId = F.aircraftId WHERE F.airlineName = '"+this.name+"'";
+    private void sendtoDB(){
+        String command = this.toSQL();
+        FlightTracker.Tracker.accessDB().passStatement(command);
+    }
+
+    public void importFleet(){
+        fleet.clear();
+        String command = "SELECT A.aircraftID, A.airportID FROM Aircraft A JOIN Fleet F ON A.aircraftId = F.aircraftId WHERE F.airlineName = '"+this.name+"'";
         ArrayList<Object> result = FlightTracker.Tracker.accessDB().runQuery(command);
-        int size = result.size() / 3;
+        
+        int size = result.size() / 2;
         int index = 0;
 
-
         for(int i = 0; i < size ;i++){
+            int aircraftID = Integer.parseInt(result.get(index++).toString());
+            String letterCode = result.get(index++).toString();
 
-            //System.out.println(result.get(index++));
-            //System.out.println(result.get(index++));
-            //System.out.println(result.get(index++));
-            //System.out.println(result.get(index++));
-            //fleet.add(new Aircraft(null, i, null));
+            String command2 = "SELECT * From Airport A , City C WHERE A.letterCode = '"+letterCode+"' and A.locationID = C.name";
 
+            ArrayList<Object> result2 = FlightTracker.Tracker.accessDB().runQuery(command2);
+            Temperature temp = new Temperature(Double.parseDouble(result2.get(5).toString()),result2.get(6).toString());
+            City city = new City(result2.get(3).toString(), result2.get(4).toString(), temp);
+            Airport air = new Airport(result2.get(1).toString(), result2.get(0).toString(), city);
+
+            new Aircraft(this, aircraftID , air);
         }
+
     }
 
     public String getName() {
@@ -42,6 +58,17 @@ public class Airline {
 
     public ArrayList<Aircraft> getFleet() {
         return this.fleet;
+    }
+
+    public ObservableList<String[]> fleetTObservableList(){
+        ObservableList<String[]> data = FXCollections.observableArrayList();
+
+        for (Aircraft a : fleet) {
+            data.add(new String[] {String.valueOf(a.getAircraftID()),a.getLocation().getLetterCode()});
+        }
+
+        return data;
+
     }
 
     public void setFleet(ArrayList<Aircraft> fleet) {
@@ -57,28 +84,27 @@ public class Airline {
     }
 
     //reserve aircraft in fleet
-    public Aircraft reserveAircraft(Flight newFlight){
+    public boolean reserveAircraft(Flight newFlight){
 
         //for all aircrafts in fleet
         for(Aircraft a: this.fleet){
+            //find if aircraft a is at new flight location
+            if(a.getLocation().getLetterCode().equals(newFlight.getSource().getLetterCode())){
 
-            //if location match source and is available
-            if(a.getLocation().equals(newFlight.getSource()) && !a.getReserved()){
-
-                //complete resercation
-                a.setReserved(true);
-                newFlight.setPlane(a);
-                
-                return a;
+                if(a.checkAvailability(newFlight)){
+                    //confirm reservation
+                    System.out.println("Found Free Aircraft");
+                    return true;    
+                }
             }
         }
 
-        //else return false
-        return null;
+        System.out.println("No Free Aircrafts");
+        return false;
     }
 
     public String toSQL(){
-        String command = "Insert into Airline values ('"+this.name+"');";
+        String command = "Insert or ignore into Airline values ('"+this.name+"');";
         return command;
     }
 
