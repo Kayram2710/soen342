@@ -10,7 +10,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
+<?import javafx.scene.control.Spinner?>
+<?import jfxtras.scene.control.LocalDateTimeTextField?>
 
 <VBox alignment="CENTER" minHeight="610.0" minWidth="1400.0" prefHeight="610.0" prefWidth="1400.0" spacing="20.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ca.concordia.UI.UIController">
    <padding>
@@ -66,26 +67,30 @@
                      </ComboBox>
                   </children>
                </VBox>
-               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+               <HBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
                   <children>
-                     <Label text="Departure" />
-                     <DatePicker fx:id="scheduledDepart" minWidth="115.0" prefWidth="100.0">
-                        <VBox.margin>
-                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                        </VBox.margin>
-                     </DatePicker>
+                     <VBox>
+                        <Label text="Departure" />
+                        <LocalDateTimeTextField fx:id="scheduledDepart" minWidth="50.0">
+                           <VBox.margin>
+                              <Insets bottom="9.0" top="9.0" />
+                           </VBox.margin>
+                        </LocalDateTimeTextField>
+                     </VBox>
                   </children>
-               </VBox>
-               <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+               </HBox>
+               <HBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
                   <children>
-                     <Label text="Arrival" />
-                     <DatePicker fx:id="scheduledArrival" minWidth="115.0">
-                        <VBox.margin>
-                           <Insets bottom="9.0" left="9.0" right="9.0" top="9.0" />
-                        </VBox.margin>
-                     </DatePicker>
+                     <VBox>
+                        <Label text="Arrival" />
+                        <LocalDateTimeTextField fx:id="scheduledArriv">
+                           <VBox.margin>
+                              <Insets bottom="9.0" left="9.0" top="9.0" />
+                           </VBox.margin>
+                        </LocalDateTimeTextField>
+                     </VBox>
                   </children>
-               </VBox>
+               </HBox>
                <VBox alignment="CENTER_RIGHT" maxHeight="10.0">
                   <children>
                      <Button mnemonicParsing="false" onAction="#addFlight" text="Add Flight" >
@@ -151,6 +156,8 @@
                <Label text="Airline Form" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
                <Label text="Select Airline Name:"/>
                <TextField fx:id="airlName" minWidth="125.0" prefWidth="125.0"/>
+               <Label text="First Plane Location:"/>
+               <ComboBox fx:id="fplaneLoc" minWidth="125.0" prefWidth="125.0"/>
                <Button mnemonicParsing="false" onAction="#createAirline" text="Add Airline"/>
             </VBox>
          </children>

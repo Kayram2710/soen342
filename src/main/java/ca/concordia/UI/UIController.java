@@ -22,7 +22,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
@@ -30,6 +29,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import jfxtras.scene.control.LocalDateTimeTextField;
 
 @SuppressWarnings("unchecked")
 //UI Class
@@ -61,15 +61,17 @@ public class UIController {
     @FXML
     private TextField airlName;
     @FXML
-    private DatePicker scheduledDepart;
+    private LocalDateTimeTextField scheduledDepart;
     @FXML
-    private DatePicker scheduledArrival;
+    private LocalDateTimeTextField scheduledArrival;
     @FXML
     private PasswordField passwordLoginField;
     @FXML
     private Label statusLabel;
     @FXML
     private ComboBox<String> userTypesBox;
+    @FXML
+    private ComboBox<String> fplaneLoc;
     @FXML
     private ComboBox<String> airlineInput;
     @FXML
@@ -95,16 +97,14 @@ public class UIController {
     @FXML
     private Label addStatus;
 
-    private final ObservableList<String> options = 
-    FXCollections.observableArrayList(
+    private final ObservableList<String> options = FXCollections.observableArrayList(
         "User",
         "Airline Admin",
         "Airport Admin",
         "System Admin"
     );
 
-    private final ObservableList<String> metrics = 
-    FXCollections.observableArrayList(
+    private final ObservableList<String> metrics = FXCollections.observableArrayList(
         "Celsius",
         "Kelvin",
         "Fahrenheit"
@@ -185,12 +185,12 @@ public class UIController {
             return;
         }
 
-        if(scheduledDepart.getValue()==null || scheduledArrival.getValue()==null){
+        if(scheduledDepart.getText().isEmpty() || scheduledArrival.getText().isEmpty()){
             addStatus.setText("Invalid Input: Enter flight dates.");
             return;
-        }
+        }    
 
-        if(scheduledDepart.getValue().atStartOfDay().compareTo(scheduledArrival.getValue().atStartOfDay()) >= 0){
+        if(scheduledDepart.getLocalDateTime().compareTo(scheduledArrival.getLocalDateTime()) >= 0){
             addStatus.setText("Invalid Input: Arrival cannot be shceduled before departure.");
             return;
         }
@@ -201,16 +201,16 @@ public class UIController {
 
         if(flightTracker.getLoggedUser() instanceof AirlineAdmin){
             if(flightType.getValue().equals("Cargo Flight")){
-                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null);
+                CargoFlight flight = new CargoFlight(flightNumber.getText(), source, destination, scheduledDepart.getLocalDateTime(), scheduledArrival.getLocalDateTime(), null, null);
                 registeredFlight = flightTracker.registerFlight(flight);
             }else if(flightType.getValue().equals("Commercial Flight")){
-                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null);
+                CommercialFlight flight = new CommercialFlight(flightNumber.getText(), source, destination, scheduledDepart.getLocalDateTime(), scheduledArrival.getLocalDateTime(), null, null);
                 registeredFlight = flightTracker.registerFlight(flight);
             }
         }else if(flightTracker.getLoggedUser() instanceof AirportAdmin){
-            PrivateFlight flight = new PrivateFlight(flightNumber.getText(), source, destination, scheduledDepart.getValue().atStartOfDay(), scheduledArrival.getValue().atStartOfDay(), null, null);
+            PrivateFlight flight = new PrivateFlight(flightNumber.getText(), source, destination, scheduledDepart.getLocalDateTime(), scheduledArrival.getLocalDateTime(), null, null);
             registeredFlight = flightTracker.registerFlight(flight);
-        }
+        } 
 
         switch (registeredFlight) {
             case 0:
@@ -269,6 +269,7 @@ public class UIController {
                     sysAdminBox.setVisible(true);
                     setCities();
                     metric.setItems(metrics);
+                    setPlanesLoc();
                 }
                 break;
             case "register":
@@ -277,6 +278,17 @@ public class UIController {
                 populateLists();
                 break;
         }
+    }
+ 
+    private void setPlanesLoc(){
+        ObservableList<String> airports = FXCollections.observableArrayList();
+
+        for(Airport airport: this.flightTracker.fetchAllAirports()){
+            airports.add(airport.getLetterCode());
+        }
+
+        fplaneLoc.setItems(airports);
+        
     }
 
     @FXML
@@ -499,6 +511,7 @@ public class UIController {
         switchPage("login");
     }
 
+    
     public void createAircraft(ActionEvent event) throws IOException{
 
         if(airLoc.getValue()==null){
@@ -528,7 +541,7 @@ public class UIController {
             return;
         }
 
-        String command = "Select * From City where name="+city.getValue()+"";
+        String command = "Select * From City where name='"+city.getValue()+"';";
         ArrayList<Object> result = flightTracker.accessDB().runQuery(command);
 
         Temperature temp = new Temperature(Double.parseDouble(result.get(2).toString()),result.get(3).toString());
@@ -536,6 +549,7 @@ public class UIController {
         new Airport(airpName.getText(),ltrCde.getText(), city);
         
         addStatus.setText("Airport Added!");
+        setPlanesLoc();
     }
 
     public void createAirline(ActionEvent event) throws IOException{
@@ -544,10 +558,17 @@ public class UIController {
             addStatus.setText("Error adding airline: No name entered.");
             return;
         }
+        if(fplaneLoc.getValue()==null){
+            addStatus.setText("Error adding airline: No location selected for first aircraft.");
+            return;
+        }
+
+        String command = "Select aircraftID From Aircraft";
+        ArrayList<Object> result = flightTracker.accessDB().runQuery(command);
+        
+        new Aircraft(new Airline(airlName.getText()), result.size(), flightTracker.fetchAirport(fplaneLoc.getValue()));
 
         addStatus.setText("Airline Added!");
-
-        //add logic to add a flight
     }
 
     public void createCity(ActionEvent event) throws IOException{
@@ -566,10 +587,16 @@ public class UIController {
             return;
         }
 
+        try {
+            Double.parseDouble(temp.getText());
+        } catch (Exception e) {
+            addStatus.setText("Error adding city: Enter numerical value for temperature.");
+            return;
+        }
+
         new City(cityname.getText(), countryname.getText(), new Temperature(Double.parseDouble(temp.getText()), metric.getValue()));
         addStatus.setText("City Added!");
         setCities();
     }
-
 
 }
